@@ -55,14 +55,7 @@ export class Register implements OnInit
     }, 100);
   }
 
-  onRegister(): void {
-    this.submitted = true;
-    this.message = '';
-
-    if (this.form.invalid) {
-      return;
-    }
-
+  onRegister(){
     const { confirmPassword, ...userData } = this.form.value;
     const user: User = {
       id: 0, 
@@ -72,7 +65,6 @@ export class Register implements OnInit
       phone: userData.phone
     };
     
-    // Pure HTTP call - backend handles everything
     this.authService.register(user).subscribe(
       (data) => {
         this.message = 'Registration successful!';
