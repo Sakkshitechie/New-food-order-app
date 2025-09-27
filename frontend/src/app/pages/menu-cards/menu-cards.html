@@ -1,0 +1,46 @@
+<div class="container">
+  <div class="row">
+    <div class="col-12 mb-4 text-end">
+      <button class="btn btn-primary" (click)="goToOrder()" *ngIf="cartItems.length > 0">
+        <i class="bi bi-cart"></i> View Cart ({{ cartItems.length }})
+      </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-6 col-md-4 col-lg-3 mb-4" *ngFor="let food of items.length > 0 ? items : foodItems">
+      <div class="card h-100 shadow-sm">
+        <img [src]="food.image" class="card-img-top" [alt]="food.name" style="height:180px;object-fit:cover;">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ food.name }}</h5>
+          <p class="card-text text-muted mb-2" style="font-size:0.95em;">{{ food.description }}</p>
+          <div class="mt-auto d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-success">{{ food.price | currency:'USD':'symbol'}}</span>
+            <div class="d-flex align-items-center">
+              <ng-container *ngIf="!isInCart(food.id)">
+                <button class="btn btn-success btn-sm me-2" (click)="addToCart(food)" [disabled]="!isLoggedIn">
+                  <i class="bi bi-cart-plus"></i> Add to Cart
+                </button>
+                <i *ngIf="!isLoggedIn"
+                   class="bi bi-info-circle text-warning"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   title="Please login to add items to cart">
+                </i>
+              </ng-container>
+              <ng-container *ngIf="isInCart(food.id)">
+                <div class="quantity-controls d-flex align-items-center me-2">
+                  <button class="btn btn-outline-secondary btn-sm" (click)="changeQty(food.id, -1)">-</button>
+                  <span class="mx-2">{{ getCartItemQuantity(food.id) }}</span>
+                  <button class="btn btn-outline-secondary btn-sm" (click)="changeQty(food.id, 1)">+</button>
+                </div>
+                <button class="btn btn-danger btn-sm" (click)="removeFromCart(food.id)">
+                  <i class="bi bi-trash"></i> Remove
+                </button>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

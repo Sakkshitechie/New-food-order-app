@@ -1,0 +1,328 @@
+{
+  "orders": [
+    {
+      "id": 1756755866394,
+      "userId": "9611",
+      "items": [
+        {
+          "id": 10,
+          "name": "Sushi Rolls",
+          "price": 14.99,
+          "image": "assets/images/sushi.jpg",
+          "quantity": 1,
+          "description": "Fresh sushi rolls with salmon, avocado, and cucumber."
+        },
+        {
+          "id": 6,
+          "name": "Chicken Curry",
+          "price": 11.99,
+          "image": "assets/images/chicken-curry.jpg",
+          "quantity": 1,
+          "description": "Spicy and flavorful chicken curry with rich spices and coconut milk."
+        }
+      ],
+      "total": 26.98,
+      "orderDate": "2025-09-07T21:54:13.817Z",
+      "status": "Paid",
+      "address": "Kolkata"
+    },
+    {
+      "id": 1756755866395,
+      "userId": "1",
+      "items": [
+        {
+          "id": 11,
+          "name": "Tacos",
+          "price": 8.49,
+          "image": "assets/images/tacos.jpg",
+          "quantity": 1,
+          "description": "Spicy tacos with salsa, cheese, and lettuce."
+        },
+        {
+          "id": 8,
+          "name": "Pasta Alfredo",
+          "price": 10.49,
+          "image": "assets/images/pasta-alfredo.jpg",
+          "quantity": 1,
+          "description": "Creamy fettuccine pasta with Alfredo sauce and grilled chicken."
+        },
+        {
+          "id": 5,
+          "name": "Paneer Tikka",
+          "price": 10.99,
+          "image": "assets/images/paneer-tikka.jpg",
+          "quantity": 1,
+          "description": "Marinated paneer cubes grilled to perfection with spices."
+        }
+      ],
+      "total": 29.97,
+      "orderDate": "2025-09-08T04:43:09.576Z",
+      "status": "Paid",
+      "address": "Jhotwara"
+    },
+    {
+      "id": 1756755866396,
+      "userId": "1",
+      "items": [
+        {
+          "id": 10,
+          "name": "Sushi Rolls",
+          "price": 14.99,
+          "image": "assets/images/sushi.jpg",
+          "quantity": 1,
+          "description": "Fresh sushi rolls with salmon, avocado, and cucumber."
+        },
+        {
+          "id": 7,
+          "name": "Caesar Salad",
+          "price": 7.99,
+          "image": "assets/images/caesar-salad.jpg",
+          "quantity": 1,
+          "description": "Fresh romaine lettuce with Caesar dressing, croutons, and parmesan cheese."
+        }
+      ],
+      "total": 22.98,
+      "orderDate": "2025-09-08T04:45:03.408Z",
+      "status": "Paid",
+      "address": "T Nagar, MGR Central"
+    },
+    {
+      "id": 1756755866397,
+      "userId": "1",
+      "items": [
+        {
+          "id": 4,
+          "name": "Dosa",
+          "price": 6.99,
+          "image": "assets/images/dosa.jpg",
+          "quantity": 1,
+          "description": "Crispy fermented crepe made from rice batter and black lentils."
+        }
+      ],
+      "total": 6.99,
+      "orderDate": "2025-09-08T04:47:10.169Z",
+      "status": "Paid",
+      "address": "Hamirpur"
+    },
+    {
+      "id": 1756755866398,
+      "userId": "1",
+      "items": [
+        {
+          "id": 9,
+          "name": "Vanilla Ice Cream",
+          "price": 4.99,
+          "image": "assets/images/chocolate-ice-cream.jpg",
+          "quantity": 1,
+          "description": "Smooth and creamy vanilla ice cream topped with chocolate sauce."
+        }
+      ],
+      "total": 4.99,
+      "orderDate": "2025-09-08T06:00:41.421Z",
+      "status": "Paid",
+      "address": "Terminal"
+    },
+    {
+      "id": 1756755866399,
+      "userId": "1",
+      "items": [
+        {
+          "id": 8,
+          "name": "Pasta Alfredo",
+          "price": 10.49,
+          "image": "assets/images/pasta-alfredo.jpg",
+          "quantity": 1,
+          "description": "Creamy fettuccine pasta with Alfredo sauce and grilled chicken."
+        }
+      ],
+      "total": 10.49,
+      "orderDate": "2025-09-08T06:04:51.522Z",
+      "status": "Paid",
+      "address": "Ramnagar"
+    },
+    {
+      "id": 1756755866400,
+      "userId": "1",
+      "items": [
+        {
+          "id": 2,
+          "name": "Biryani",
+          "price": 12.99,
+          "image": "assets/images/biryani.jpg",
+          "quantity": 1,
+          "description": "Aromatic basmati rice cooked with spices, meat, and saffron."
+        }
+      ],
+      "total": 12.99,
+      "orderDate": "2025-09-08T06:31:35.447Z",
+      "status": "Paid",
+      "address": "Fizapur"
+    },
+    {
+      "id": 1756755866401,
+      "userId": "1",
+      "items": [
+        {
+          "id": 2,
+          "name": "Biryani",
+          "price": 12.99,
+          "image": "assets/images/biryani.jpg",
+          "quantity": 1,
+          "description": "Aromatic basmati rice cooked with spices, meat, and saffron."
+        },
+        {
+          "id": 6,
+          "name": "Chicken Curry",
+          "price": 11.99,
+          "image": "assets/images/chicken-curry.jpg",
+          "quantity": 1,
+          "description": "Spicy and flavorful chicken curry with rich spices and coconut milk."
+        },
+        {
+          "id": 8,
+          "name": "Pasta Alfredo",
+          "price": 10.49,
+          "image": "assets/images/pasta-alfredo.jpg",
+          "quantity": 1,
+          "description": "Creamy fettuccine pasta with Alfredo sauce and grilled chicken."
+        }
+      ],
+      "total": 35.47,
+      "orderDate": "2025-09-08T06:38:16.832Z",
+      "status": "Paid",
+      "address": "Hastinapur"
+    },
+    {
+      "id": 1756755866402,
+      "userId": "1",
+      "items": [
+        {
+          "id": 2,
+          "name": "Biryani",
+          "price": 12.99,
+          "image": "assets/images/biryani.jpg",
+          "quantity": 1,
+          "description": "Aromatic basmati rice cooked with spices, meat, and saffron."
+        },
+        {
+          "id": 4,
+          "name": "Dosa",
+          "price": 6.99,
+          "image": "assets/images/dosa.jpg",
+          "quantity": 1,
+          "description": "Crispy fermented crepe made from rice batter and black lentils."
+        }
+      ],
+      "total": 19.98,
+      "orderDate": "2025-09-08T06:40:20.517Z",
+      "status": "Paid",
+      "address": "Bihar"
+    },
+    {
+      "id": 1756755866403,
+      "userId": "1",
+      "items": [
+        {
+          "id": 3,
+          "name": "Burger",
+          "price": 9.99,
+          "image": "assets/images/burger.jpg",
+          "quantity": 1,
+          "description": "Juicy beef patty with lettuce, tomato, cheese, and special sauce."
+        },
+        {
+          "id": 2,
+          "name": "Biryani",
+          "price": 12.99,
+          "image": "assets/images/biryani.jpg",
+          "quantity": 1,
+          "description": "Aromatic basmati rice cooked with spices, meat, and saffron."
+        }
+      ],
+      "total": 22.98,
+      "orderDate": "2025-09-08T06:49:57.428Z",
+      "status": "Paid",
+      "address": "Rampura"
+    },
+    {
+      "id": 1756755866404,
+      "userId": "9612",
+      "items": [
+        {
+          "id": 1,
+          "name": "Margherita Pizza",
+          "price": 8.99,
+          "image": "assets/images/margherita-pizza.jpg",
+          "quantity": 1,
+          "description": "Classic pizza with tomato sauce, mozzarella cheese, and fresh basil."
+        },
+        {
+          "id": 2,
+          "name": "Biryani",
+          "price": 12.99,
+          "image": "assets/images/biryani.jpg",
+          "quantity": 2,
+          "description": "Aromatic basmati rice cooked with spices, meat, and saffron."
+        }
+      ],
+      "total": 34.97,
+      "orderDate": "2025-09-08T10:24:27.169Z",
+      "status": "Paid",
+      "address": "Vijayanagar"
+    },
+    {
+      "id": 1756755866405,
+      "userId": "9612",
+      "items": [
+        {
+          "id": 9,
+          "name": "Vanilla Ice Cream",
+          "price": 4.99,
+          "image": "assets/images/chocolate-ice-cream.jpg",
+          "quantity": 3,
+          "description": "Smooth and creamy vanilla ice cream topped with chocolate sauce."
+        }
+      ],
+      "total": 14.97,
+      "orderDate": "2025-09-08T10:25:50.316Z",
+      "status": "Paid",
+      "address": "madikeri"
+    },
+    {
+      "id": 1756755866406,
+      "userId": "1",
+      "items": [
+        {
+          "id": 2,
+          "name": "Biryani",
+          "price": 12.99,
+          "image": "assets/images/biryani.jpg",
+          "quantity": 1,
+          "description": "Aromatic basmati rice cooked with spices, meat, and saffron."
+        }
+      ],
+      "total": 12.99,
+      "orderDate": "2025-09-09T03:44:02.554Z",
+      "status": "Paid",
+      "address": "RTM"
+    },
+    {
+      "id": 1756755866407,
+      "userId": "1",
+      "items": [
+        {
+          "id": 3,
+          "name": "Burger",
+          "price": 9.99,
+          "image": "assets/images/burger.jpg",
+          "quantity": 1,
+          "description": "Juicy beef patty with lettuce, tomato, cheese, and special sauce."
+        }
+      ],
+      "total": 9.99,
+      "orderDate": "2025-09-09T04:39:15.386Z",
+      "status": "Paid",
+      "address": "TC Circle"
+    }
+  ]
+}

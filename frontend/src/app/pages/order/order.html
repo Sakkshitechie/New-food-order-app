@@ -1,0 +1,107 @@
+<div class="container py-4" *ngIf="!showPaymentSuccess">
+  <div *ngIf="cartItems.length === 0 && !showPaymentSuccess" class="empty-cart">
+    <h3>Your cart is empty</h3>
+    <p>Add some delicious food items to get started!</p>
+    <a routerLink="/" class="btn btn-warning">Browse Menu</a>
+  </div>
+  <div *ngIf="cartItems.length > 0 && !showPaymentSuccess">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Your Cart</h2>
+      <button class="btn btn-secondary" routerLink="/">← Go back to Menu</button>
+    </div>
+  <table class="cart-table">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of cartItems">
+        <td>
+          <img [src]="item.image" alt="{{ item.name }}" width="80">
+        </td>
+        <td>{{ item.name }}</td>
+        <td>${{ item.price }}</td>
+        <td>
+          <div class="quantity-controls">
+            <button (click)="changeQty(item.id, -1)">-</button>
+            <span>{{ item.quantity }}</span>
+            <button (click)="changeQty(item.id, 1)">+</button>
+          </div>
+        </td>
+        <td>
+          <div class="action-buttons">
+            <button class="remove-btn" (click)="remove(item.id)">Remove</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div *ngIf="cartItems.length > 0 && !showPaymentSuccess" class="cart-total">
+    <div class="total-amount">
+      <strong>Total: ${{ getTotalPrice() }}</strong>
+    </div>
+    <button *ngIf="!showAddressForm" class="proceed-btn" (click)="proceedToAddress()">Proceed to Checkout</button>
+  </div>
+</div>
+
+<div *ngIf="showAddressForm && !showPaymentSuccess" class="order-details">
+  <h3>Delivery Details</h3>
+  <form class="order-form" (ngSubmit)="submitAddress()">
+    <table>
+      <tr>
+        <td>Name:</td>
+        <td>{{ userName }}</td>
+      </tr>
+      <tr>
+        <td>Email:</td>
+        <td>{{ userEmail }}</td>
+      </tr>
+      <tr>
+        <td>Phone Number:</td>
+        <td>{{ userPhone }}</td>
+      </tr>
+      <tr>
+        <td>Delivery Address:</td>
+        <td>
+          <textarea [(ngModel)]="userAddress" name="address" rows="3" placeholder="Enter your delivery address" required></textarea>
+        </td>
+      </tr>
+      <tr *ngIf="addressError">
+      <td colspan="2">
+        <span style="color: red;">Please fill in your delivery address before continuing to payment.</span>
+      </td>
+    </tr>
+    </table>
+  <div class="button-container">
+    <button type="submit" class="submit-btn" [disabled]="!userAddress || userAddress.trim().length === 0">
+      Continue to Payment
+    </button>
+    <div *ngIf="!userAddress || userAddress.trim().length === 0" class="address-warning">
+      Please add your delivery address to continue to payment.
+    </div>
+  </div>
+  </form>
+</div>
+
+<div *ngIf="showPaymentForm && !showPaymentSuccess">
+  <app-payment
+    [cartItems]="cartItems"
+    [total]="getTotalPrice()"
+    [address]="userAddress"
+    (paymentCompleted)="onPaymentComplete($event)">
+  </app-payment>
+</div>
+
+<div *ngIf="showPaymentSuccess" class="payment-success-card">
+  <div class="success-card">
+    <h4>🎉 Order Confirmed!</h4>
+    <p>{{ paymentSuccessMessage }}</p>
+    <button class="btn btn-success" routerLink="/">Continue Shopping</button>
+  </div>
+</div>

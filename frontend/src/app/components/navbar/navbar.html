@@ -1,0 +1,27 @@
+<nav class="navbar navbar-expand-lg sticky-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" routerLink="/">🍽️Foodify</a>
+ 
+    <button class="navbar-toggler" type="button" (click)="isOpen = !isOpen"
+            aria-controls="mainNav" [attr.aria-expanded]="isOpen" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+ 
+    <div [ngClass]="{'collapse': !isOpen, 'navbar-collapse': true}" id="mainNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a routerLink="/" routerLinkActive="active" class="nav-link">Home</a></li>
+        <li class="nav-item"><a routerLink="/order" routerLinkActive="active" class="nav-link">Cart</a></li>
+        <li class="nav-item"><a routerLink="/profile" routerLinkActive="active" class="nav-link">Profile</a></li>
+      </ul>
+ 
+      <div class="d-flex gap-2" *ngIf="!isLoggedIn">
+        <a routerLink="/login" class="btn btn-outline-success btn-md" style="border-radius: 10px;">Login</a>
+        <a routerLink="/register" class="btn btn-success btn-md" style="border-radius: 10px;">Register</a>
+      </div>
+      <div class="d-flex align-items-center gap-2" *ngIf="isLoggedIn">
+        <span class="fw-semibold">Welcome, <span class="text-primary">{{ username }}</span></span>
+        <button (click)="logout()" class="btn btn-danger btn-md" style="border-radius: 9px;">Logout</button>
+      </div>
+    </div>
+  </div>
+</nav>

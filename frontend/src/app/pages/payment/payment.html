@@ -1,0 +1,28 @@
+<div class="payment-container">
+  <h3>Select Payment Method</h3>
+  <div>
+    <label>
+      <input type="radio" name="paymentMethod" [(ngModel)]="selectedMethod" value="credit-card" />
+      Credit Card
+    </label>
+  </div>
+  <div>
+    <label>
+      <input type="radio" name="paymentMethod" [(ngModel)]="selectedMethod" value="paypal" />
+      PayPal
+    </label>
+  </div>
+  <div>
+    <label>
+      <input type="radio" name="paymentMethod" [(ngModel)]="selectedMethod" value="upi" />
+      UPI
+    </label>
+  </div>
+  <button (click)="pay()">Pay</button>
+  <div *ngIf="paymentStatus" class="payment-status success fixed-card">
+    {{ paymentStatus }}
+  </div>
+  <div *ngIf="orderSuccess" class="payment-status success fixed-card">
+    Order Successful!
+  </div>
+</div>

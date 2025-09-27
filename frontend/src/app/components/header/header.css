@@ -1,0 +1,11 @@
+.hero { position: relative;
+  height: 100%;
+  background-size: cover;
+  width: 100%;
+  background: url('../../../assets/images/food-bg.jpg') no-repeat center/cover;
+}
+.overlay {
+  position:absolute; 
+  inset:0;
+  background-color:rgba(24, 94, 94, 0.377);
+}

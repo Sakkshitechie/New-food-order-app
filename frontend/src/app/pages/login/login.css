@@ -1,0 +1,117 @@
+.login-container {
+  padding-top: 150px;
+  padding-bottom: 3rem;
+  min-height: 100vh;
+}
+
+.card {
+  position: relative;
+  z-index: 10;
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.card-body {
+  padding: 2.5rem;
+}
+
+.card h3 {
+  color: #495057;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  border-radius: 0.5rem;
+  border: 2px solid #e9ecef;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+.form-control::placeholder {
+  color: #adb5bd;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.875rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-success:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #218838 0%, #17a2b8 100%);
+}
+
+.btn-success:disabled {
+  background: #6c757d;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alert {
+  border-radius: 0.5rem;
+  border: none;
+  font-weight: 500;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+}
+
+.invalid-feedback {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.text-center small {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+.text-center small a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.text-center small a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.text-muted {
+  color: #6c757d !important;
+  font-style: italic;
+}
+
+

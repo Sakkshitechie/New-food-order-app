@@ -1,0 +1,24 @@
+<section class="container py-5">
+  <div class="d-flex align-items-end justify-content-between gap-3 mb-3 flex-wrap">
+    <div>
+      <h2 class="fw-bold mb-1">Popular Dishes</h2>
+      <p class="text-muted mb-0">Fresh, hot, and handpicked for you</p>
+    </div>
+
+    <div class="row mb-4 w-100">
+      <div class="col-12 d-flex justify-content-between align-items-center">
+        <div class="input-group" style="max-width: 400px;">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text"
+                 class="form-control"
+                 placeholder="Search food items..."
+                 [(ngModel)]="searchTerm">
+        </div>
+        <button class="btn btn-primary" routerLink="/order">Go to Cart</button>
+      </div>
+    </div>
+  </div>
+  <app-menu-cards
+    [items]="foodItems | filter: searchTerm"
+  ></app-menu-cards>
+</section>

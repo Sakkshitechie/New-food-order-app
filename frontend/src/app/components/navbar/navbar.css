@@ -1,0 +1,7 @@
+.navbar{
+    background-color:#ffffff;
+}
+.nav-item{
+    cursor: pointer;
+    font-weight: 600;
+}
