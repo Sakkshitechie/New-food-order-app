@@ -3,14 +3,10 @@ const FoodItem = require('../models/FoodItem');
 const { authenticateUser, optionalAuth } = require('../middleware/auth');
 const router = express.Router();
 
-// Public route - no authentication required
 router.get('/', async (req, res) => {
   try {
-    const { category, search } = req.query;
+    const { search } = req.query;
     let query = {};
-    if (category) {
-      query.category = category;
-    }
     if (search) {
       query.name = { $regex: search, $options: 'i' };
     }
@@ -21,7 +17,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Public route - no authentication required
 router.get('/:id', async (req, res) => {
   try {
     const food = await FoodItem.findById(req.params.id);
@@ -34,7 +29,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Public route - no authentication required for now
 router.post('/', async (req, res) => {
   try {
     const food = new FoodItem(req.body);
@@ -45,7 +39,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Public route - no authentication required for now
 router.put('/:id', async (req, res) => {
   try {
     const food = await FoodItem.findByIdAndUpdate(
@@ -64,7 +57,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Public route - no authentication required for now
 router.delete('/:id', async (req, res) => {
   try {
     const food = await FoodItem.findByIdAndDelete(req.params.id);

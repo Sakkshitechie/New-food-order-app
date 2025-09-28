@@ -24,12 +24,6 @@ const foodItemSchema = new mongoose.Schema({
   image: {
     type: String,
     required: true
-  },
-  category: {
-    type: String,
-    required: false,
-    enum: ['main-course', 'desserts', 'snacks', 'salads', 'soups'],
-    trim: true
   }
 });
 

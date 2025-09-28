@@ -16,9 +16,10 @@ import { Router } from '@angular/router';
 export class MenuCards implements OnInit, AfterViewInit {
   @Input() items: FoodItem[] = [];
   foodItems: FoodItem[] = [];
-  isLoggedIn: boolean = false;
   cartItems: CartItem[] = [];
-  showViewCart:boolean=false;
+  showViewCart: boolean = false;
+  private currentUserId: number | string | null = null;
+  isLoggedIn: boolean = false;
 
   constructor(
     private foodService: FoodService,
@@ -28,28 +29,27 @@ export class MenuCards implements OnInit, AfterViewInit {
   ) {}
 
   addToCart(food: FoodItem) {
-    const cartItem: CartItem = {
+    if (!this.isLoggedIn) {
+      return;
+    }
+    
+    const userId = this.currentUserId || 1;
+    
+    const cartData = {
       id: food.id,
       name: food.name,
       price: food.price,
-      image: food.image,
-      quantity: 1,
-      description: food.description,
-      type: 'main-course' 
+      image: food.image
     };
     
-    // Pure HTTP call - backend handles everything  
-    const userId = 1; // Default user ID for demo
-    this.cartService.addToCart(userId, cartItem).subscribe(
-      (data) => {
-        // Cart updated
-      }
-    );
+    this.cartService.addToCart(userId, cartData).subscribe(() => {
+      this.loadCartItems();
+    });
   }
 
   goToOrder() {
-    if(this.cartItems.length>0){
-      this.router.navigate(['/order'],{state:{cartItems:this.cartItems}});
+    if (this.cartItems.length > 0) {
+      this.router.navigate(['/order'], { state: { cartItems: this.cartItems } });
     }
   }
 
@@ -57,21 +57,55 @@ export class MenuCards implements OnInit, AfterViewInit {
     this.cartItems = [];
     this.showViewCart = false;
 
+    this.authService.currentUser$.subscribe(currentUser => {
+      if (currentUser && currentUser.id) {
+        this.currentUserId = currentUser.id;
+        this.isLoggedIn = true;
+      } else {
+        this.currentUserId = 1;
+        this.isLoggedIn = false;
+      }
+      this.loadCartItems();
+    });
+
     if (this.items.length === 0) {
-      // Pure HTTP call - backend handles everything
-      this.foodService.getFoodItems().subscribe(
-        (data) => {
-          this.foodItems = data;
-        }
-      );
+      this.foodService.getFoodItems().subscribe(data => {
+        this.foodItems = data;
+        setTimeout(() => this.initializeTooltips(), 200);
+      });
     } else {
       this.foodItems = this.items;
+      setTimeout(() => this.initializeTooltips(), 200);
     }
   }
 
+  private loadCartItems() {
+    if (!this.isLoggedIn || !this.currentUserId) {
+      this.cartItems = [];
+      this.showViewCart = false;
+      this.cartService.updateCartItems([]);
+      return;
+    }
+    
+    const userId = this.currentUserId;
+    this.cartService.getCart(userId).subscribe(cartData => {
+      this.cartItems = Array.isArray(cartData) ? cartData : [];
+      this.showViewCart = this.cartItems.length > 0;
+      this.cartService.updateCartItems(this.cartItems);
+    });
+  }
+
   ngAfterViewInit() {
+    setTimeout(() => this.initializeTooltips(), 100);
+  }
+
+  private initializeTooltips() {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
+      const existingTooltip = (window as any).bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+      if (existingTooltip) {
+        existingTooltip.dispose();
+      }
       return new (window as any).bootstrap.Tooltip(tooltipTriggerEl);
     });
   }
@@ -82,25 +116,33 @@ export class MenuCards implements OnInit, AfterViewInit {
   }
 
   removeFromCart(foodId: number) {
-    const userId = 1; // Default user ID for demo
-    this.cartService.removeFromCart(userId, foodId).subscribe(
-      (data) => {
-        // Item removed
-      }
-    );
+    if (!this.isLoggedIn || !this.currentUserId) return;
+    
+    const userId = this.currentUserId;
+    this.cartService.removeFromCart(userId, foodId).subscribe(() => {
+      this.loadCartItems();
+    });
   }
 
-  changeQuantity(foodId: number, delta: number) {
-    const userId = 1; // Default user ID for demo
-    this.cartService.updateQuantity(userId, foodId, delta).subscribe(
-      (data) => {
-        // Quantity updated
-      }
-    );
+  changeQuantity(foodId: number, newQuantity: number) {
+    if (!this.isLoggedIn || !this.currentUserId) return;
+    
+    const userId = this.currentUserId;
+    if (newQuantity <= 0) {
+      this.removeFromCart(foodId);
+    } else {
+      this.cartService.updateQuantity(userId, foodId, newQuantity).subscribe(() => {
+        this.loadCartItems();
+      });
+    }
   }
 
   changeQty(foodId: number, delta: number) {
-    this.changeQuantity(foodId, delta);
+    if (!this.isLoggedIn || !this.currentUserId) return;
+    
+    const currentQuantity = this.getCartItemQuantity(foodId);
+    const newQuantity = currentQuantity + delta;
+    this.changeQuantity(foodId, newQuantity);
   }
 
   isInCart(foodId: number): boolean {

@@ -21,22 +21,25 @@ const cartItemSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  category: {
-    type: String,
-    required: true
-  },
   quantity: {
     type: Number,
     required: true,
     min: 1
+  },
+  description: {
+    type: String,
+    required: false
   }
+}, {
+  strict: true, 
+  versionKey: false
 });
 
-cartItemSchema.virtual('id').get(function() {  //Virtual for id field
+cartItemSchema.virtual('id').get(function() { 
   return this.foodItemId;
 });
 
-cartItemSchema.set('toJSON', { //Virtual fields are serialised
+cartItemSchema.set('toJSON', { 
   virtuals: true
 });
 

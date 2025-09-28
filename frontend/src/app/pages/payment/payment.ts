@@ -25,6 +25,10 @@ export class Payment {
 
   constructor(private orderService: OrderService, private router: Router) {}
 
+  getFormattedTotal(): string {
+    return this.total.toFixed(2);
+  }
+
   pay() {
     this.paymentStatus = 'Payment successful using ' + this.selectedMethod;
     this.paymentCompleted.emit(this.selectedMethod);

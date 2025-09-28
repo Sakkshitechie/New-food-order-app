@@ -1,7 +1,7 @@
 <div class="container">
   <div class="row">
     <div class="col-12 mb-4 text-end">
-      <button class="btn btn-primary" (click)="goToOrder()" *ngIf="cartItems.length > 0">
+      <button class="btn btn-primary" (click)="goToOrder()" *ngIf="cartItems.length > 0 && isLoggedIn">
         <i class="bi bi-cart"></i> View Cart ({{ cartItems.length }})
       </button>
     </div>
@@ -17,17 +17,17 @@
             <span class="fw-bold text-success">{{ food.price | currency:'USD':'symbol'}}</span>
             <div class="d-flex align-items-center">
               <ng-container *ngIf="!isInCart(food.id)">
-                <button class="btn btn-success btn-sm me-2" (click)="addToCart(food)" [disabled]="!isLoggedIn">
+                <button 
+                  class="btn btn-success btn-sm" 
+                  (click)="addToCart(food)"
+                  [disabled]="!isLoggedIn"
+                  [attr.data-bs-toggle]="!isLoggedIn ? 'tooltip' : null"
+                  [attr.data-bs-placement]="!isLoggedIn ? 'top' : null"
+                  [attr.title]="!isLoggedIn ? 'Please login first to order something' : null">
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </button>
-                <i *ngIf="!isLoggedIn"
-                   class="bi bi-info-circle text-warning"
-                   data-bs-toggle="tooltip"
-                   data-bs-placement="top"
-                   title="Please login to add items to cart">
-                </i>
               </ng-container>
-              <ng-container *ngIf="isInCart(food.id)">
+              <ng-container *ngIf="isInCart(food.id) && isLoggedIn">
                 <div class="quantity-controls d-flex align-items-center me-2">
                   <button class="btn btn-outline-secondary btn-sm" (click)="changeQty(food.id, -1)">-</button>
                   <span class="mx-2">{{ getCartItemQuantity(food.id) }}</span>

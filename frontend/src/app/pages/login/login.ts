@@ -3,6 +3,7 @@ import { Validators, FormBuilder, FormGroup, ReactiveFormsModule, FormControl, F
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule, ViewportScroller } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -30,12 +31,12 @@ export class Login implements OnInit{
       const element = document.getElementById('login-card');
       if (element) {
         const navbarHeight = document.querySelector('nav')?.clientHeight || 0;
-        this.viewportScroller.scrollToPosition([0, element.offsetTop - navbarHeight - 10]); //Adjust for navbar height + margin
+        this.viewportScroller.scrollToPosition([0, element.offsetTop - navbarHeight - 10]);
       }
     }, 100);
   }
 
-  onSubmit(){
+  async onSubmit(){
     this.submitted = true;
     this.isLoading = true;
     this.message = '';
@@ -47,16 +48,26 @@ export class Login implements OnInit{
 
     const formValue = this.form.value;
     
-    // Pure HTTP call - backend handles everything
-    this.authService.login(formValue.email, formValue.password).subscribe(
-      (data) => {
-        this.message = 'Login successful!';
-        this.messageType = 'success';
-        this.isLoading = false;
-        setTimeout(() => {
-          this.router.navigate(['/']);
-        }, 1000);
+    try {
+      const response = await firstValueFrom(this.authService.login(formValue.email, formValue.password));
+      if (response.success && response.user) {
+        this.authService.setCurrentUser(response.user);
       }
-    );
+      
+      this.message = 'Login successful!';
+      this.messageType = 'success';
+      this.isLoading = false;
+      setTimeout(() => {
+        this.router.navigate(['/']);
+      }, 1500);
+    } catch (error: any) {
+      this.isLoading = false;
+      if (error.error && error.error.message) {
+        this.message = error.error.message;
+      } else {
+        this.message = 'Login failed. Please check your credentials.';
+      }
+      this.messageType = 'error';
+    }
   }
 }

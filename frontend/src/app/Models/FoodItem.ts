@@ -4,5 +4,4 @@ export interface FoodItem {
   description: string;
   price: number;
   image: string;
-  type: 'main-course'|'desserts'|'snacks'|'salads'|'soups';
 }

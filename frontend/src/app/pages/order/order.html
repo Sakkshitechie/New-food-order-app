@@ -14,8 +14,9 @@
       <tr>
         <th>Image</th>
         <th>Name</th>
-        <th>Price</th>
+        <th>Unit Price</th>
         <th>Quantity</th>
+        <th>Total</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -25,13 +26,16 @@
           <img [src]="item.image" alt="{{ item.name }}" width="80">
         </td>
         <td>{{ item.name }}</td>
-        <td>${{ item.price }}</td>
+        <td>${{ getFormattedPrice(item.price) }}</td>
         <td>
           <div class="quantity-controls">
             <button (click)="changeQty(item.id, -1)">-</button>
             <span>{{ item.quantity }}</span>
             <button (click)="changeQty(item.id, 1)">+</button>
           </div>
+        </td>
+        <td class="item-total">
+          <strong>${{ getFormattedItemTotal(item.price, item.quantity) }}</strong>
         </td>
         <td>
           <div class="action-buttons">
@@ -44,7 +48,7 @@
   </div>
   <div *ngIf="cartItems.length > 0 && !showPaymentSuccess" class="cart-total">
     <div class="total-amount">
-      <strong>Total: ${{ getTotalPrice() }}</strong>
+      <strong>Total: ${{ getFormattedTotalPrice() }}</strong>
     </div>
     <button *ngIf="!showAddressForm" class="proceed-btn" (click)="proceedToAddress()">Proceed to Checkout</button>
   </div>

@@ -10,21 +10,15 @@
     "restaurant",
     "nodejs"
   ],
-  "author": "Food Ordering Team",
   "main": "server.js",
-  "homepage": "https://github.com/food-ordering/backend",
   "version": "1.0.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/food-ordering/backend.git"
-  },
   "files": [
     "server.js",
     "models",
     "routes",
     "seed.js"
   ],
-  "license": "MIT",
+  "license": "ISC",
   "exports": {
     "import": {
       "default": "./server.js"
@@ -35,33 +29,19 @@
   },
   "scripts": {
     "bootstrap": "npm install",
-    "start": "node server.js",
-    "dev": "node server.js",
-    "dev:port": "PORT=3000 node server.js",
-    "seed": "node seed.js",
-    "seed:reset": "node seed.js",
-    "compile": "echo 'No compilation needed for JavaScript project'",
-    "typecheck": "echo 'No TypeScript typechecking needed'",
-    "eslint": "echo 'ESLint not configured'",
-    "prettier": "echo 'Prettier not configured'",
-    "lint": "echo 'Linting not configured'",
-    "depcheck": "echo 'Dependency check not configured'",
-    "check": "npm run lint",
-    "check-ci": "npm run check",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test-cov": "echo 'Test coverage not configured'",
-    "test-watch": "echo 'Test watch mode not configured'",
-    "test-ci": "npm run test",
-    "reformat": "echo 'Code reformatting not configured'",
-    "install:deps": "npm install",
-    "prepublishOnly": "npm run check"
+    "start": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "express": "^4.18.2",
+    "express": "^4.21.2",
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^7.5.0"
+    "mongoose": "^7.5.0",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2"
   }
 }

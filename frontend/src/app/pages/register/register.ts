@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule, ViewportScroller } from '@angular/common';
 import { User } from '../../Models/User';
+import { firstValueFrom } from 'rxjs';
  
 @Component({
   selector: 'app-register',
@@ -50,12 +51,12 @@ export class Register implements OnInit
       const element = document.getElementById('register-card');
       if (element) {
         const navbarHeight = document.querySelector('nav')?.clientHeight || 0;
-        this.viewportScroller.scrollToPosition([0, element.offsetTop - navbarHeight - 10]); // Adjust for navbar height + margin
+        this.viewportScroller.scrollToPosition([0, element.offsetTop - navbarHeight - 10]); 
       }
     }, 100);
   }
 
-  onRegister(){
+  async onRegister(){
     const { confirmPassword, ...userData } = this.form.value;
     const user: User = {
       id: 0, 
@@ -65,15 +66,21 @@ export class Register implements OnInit
       phone: userData.phone
     };
     
-    this.authService.register(user).subscribe(
-      (data) => {
-        this.message = 'Registration successful!';
-        this.messageType = 'success';
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 1500);
+    try {
+      const response = await firstValueFrom(this.authService.register(user));
+      this.message = 'Registration successful!';
+      this.messageType = 'success';
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 1500);
+    } catch (error: any) {
+      if (error.error && error.error.message) {
+        this.message = error.error.message;
+      } else {
+        this.message = 'Registration failed. Please try again.';
       }
-    );
+      this.messageType = 'error';
+    }
   }
   passwordMatchValidator(control: AbstractControl) {
     const form = control as FormGroup;

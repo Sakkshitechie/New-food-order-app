@@ -1,9 +1,7 @@
 const express = require('express');
 const Order = require('../models/Order');
-const { authenticateUser } = require('../middleware/auth');
 const router = express.Router();
 
-// Get all orders or filter by userId
 router.get('/', async (req, res) => {
   try {
     const { userId } = req.query;
@@ -18,10 +16,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get specific order by ID
 router.get('/:id', async (req, res) => {
   try {
-    // First try to find by custom id field, then by MongoDB _id
     let order = await Order.findOne({ id: req.params.id });
     if (!order) {
       order = await Order.findOne({ _id: req.params.id });
@@ -35,10 +31,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create new order
 router.post('/', async (req, res) => {
   try {
-    // Generate a unique order ID
     const lastOrder = await Order.findOne().sort({ id: -1 });
     const newOrderId = lastOrder ? lastOrder.id + 1 : 1001;
     
@@ -56,11 +50,9 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update order status
 router.patch('/:id', async (req, res) => {
   try {
     const { status } = req.body;
-    // First try to find by custom id field, then by MongoDB _id
     let order = await Order.findOneAndUpdate(
       { id: req.params.id },
       { status },
@@ -82,10 +74,8 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-// Delete order
 router.delete('/:id', async (req, res) => {
   try {
-    // First try to find by custom id field, then by MongoDB _id
     let order = await Order.findOneAndDelete({ id: req.params.id });
     if (!order) {
       order = await Order.findOneAndDelete({ _id: req.params.id });

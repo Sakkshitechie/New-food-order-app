@@ -8,6 +8,7 @@ import { Order } from '../Models/Order';
 })
 export class OrderService {
   private apiUrl = 'http://localhost:3000/api/orders';
+  private cartApiUrl = 'http://localhost:3000/api/cart';
 
   constructor(private http: HttpClient) {}
 
@@ -21,9 +22,14 @@ export class OrderService {
     return this.http.get(`${this.apiUrl}/${id}`);
   }
 
-  // Pure HTTP GET for orders by user ID
-  getOrdersByUser(userId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/user/${userId}`);
+  // Get orders for a specific user from global order collection
+  getOrdersByUser(userId: string | number): Observable<any> {
+    return this.http.get(`${this.apiUrl}?userId=${userId}`);
+  }
+
+  // Create order from cart (checkout)
+  createOrderFromCart(userId: string | number, address?: string): Observable<any> {
+    return this.http.post(`${this.cartApiUrl}/${userId}/checkout`, { address });
   }
 
   // Pure HTTP POST for create order

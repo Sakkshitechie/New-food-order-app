@@ -1,4 +1,3 @@
-/* Cart Table Styles */
 .cart-table {
   width: 100%;
   border-collapse: collapse;
@@ -24,6 +23,15 @@
 .cart-table img {
   border-radius: 4px;
   object-fit: cover;
+}
+
+/* Item Total Column Styling */
+.item-total {
+  text-align: right;
+  color: #28a745;
+  font-weight: 600;
+  font-size: 1.1em;
+  background-color: #f8f9fa;
 }
 
 .quantity-controls {
@@ -177,16 +185,41 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .cart-table {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .cart-table th,
   .cart-table td {
-    padding: 8px;
+    padding: 6px;
   }
 
   .cart-table img {
-    width: 60px;
+    width: 50px;
+  }
+
+  /* Hide unit price column on mobile and show only total */
+  .cart-table th:nth-child(3),
+  .cart-table td:nth-child(3) {
+    display: none;
+  }
+
+  .quantity-controls {
+    gap: 4px;
+  }
+
+  .quantity-controls button {
+    width: 25px;
+    height: 25px;
+    font-size: 12px;
+  }
+
+  .quantity-controls span {
+    min-width: 20px;
+    font-size: 14px;
+  }
+
+  .item-total {
+    font-size: 1em;
   }
 
   .cart-total {

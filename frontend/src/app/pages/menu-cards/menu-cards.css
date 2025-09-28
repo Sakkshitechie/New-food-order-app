@@ -46,6 +46,21 @@
   padding: 0.4em 1em;
 }
 
+.btn-success:disabled {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: #fff;
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn-success:disabled:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: #fff;
+  transform: none;
+}
+
 .fw-bold.text-success {
   font-size: 1.1em;
 }

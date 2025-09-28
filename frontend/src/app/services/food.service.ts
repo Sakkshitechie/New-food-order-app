@@ -21,11 +21,6 @@ export class FoodService {
     return this.http.get(`${this.apiUrl}/${id}`);
   }
 
-  // Pure HTTP GET for foods by category
-  getFoodsByCategory(category: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}?category=${category}`);
-  }
-
   // Pure HTTP GET for search foods
   searchFoods(searchTerm: string): Observable<any> {
     return this.http.get(`${this.apiUrl}?search=${searchTerm}`);

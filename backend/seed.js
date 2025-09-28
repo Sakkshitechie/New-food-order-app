@@ -120,7 +120,6 @@ const orders = [
         description: 'Classic pizza with tomato sauce, mozzarella cheese, and fresh basil.',
         price: 8.99,
         image: 'assets/images/margherita-pizza.jpg',
-        category: 'main-course',
         quantity: 2
       }
     ],
@@ -139,7 +138,6 @@ const orders = [
         description: 'Aromatic basmati rice cooked with spices, meat, and saffron.',
         price: 12.99,
         image: 'assets/images/biryani.jpg',
-        category: 'main-course',
         quantity: 1
       },
       {
@@ -148,7 +146,6 @@ const orders = [
         description: 'Fresh romaine lettuce with Caesar dressing, croutons, and parmesan cheese.',
         price: 7.99,
         image: 'assets/images/caesar-salad.jpg',
-        category: 'salads',
         quantity: 1
       }
     ],
@@ -167,7 +164,6 @@ const orders = [
         description: 'Juicy beef patty with lettuce, tomato, cheese, and special sauce.',
         price: 9.99,
         image: 'assets/images/burger.jpg',
-        category: 'main-course',
         quantity: 1
       },
       {
@@ -176,7 +172,6 @@ const orders = [
         description: 'Smooth and creamy vanilla ice cream topped with chocolate sauce.',
         price: 4.99,
         image: 'assets/images/vanilla-ice-cream.jpg',
-        category: 'desserts',
         quantity: 2
       }
     ],
@@ -195,7 +190,6 @@ const orders = [
         description: 'Grilled cottage cheese cubes marinated in spices.',
         price: 10.99,
         image: 'assets/images/paneer-tikka.jpg',
-        category: 'snacks',
         quantity: 1
       }
     ],
@@ -214,7 +208,6 @@ async function seedDatabase() {
     
     await FoodItem.insertMany(items);
     
-    // Insert users one by one to ensure proper validation and transformation
     for (const userData of users) {
       const user = new User(userData);
       await user.save();

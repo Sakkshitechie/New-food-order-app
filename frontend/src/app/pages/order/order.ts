@@ -18,7 +18,7 @@ import { Order as OrderModel } from '../../Models/Order';
 export class Order implements OnInit {
   userName: string = '';
   userEmail: string = '';
-  userPhone: string = '';
+  userPhone: number = 0;
   userAddress: string = '';
   addressError: boolean = false;
   showAddressForm: boolean = false;
@@ -26,6 +26,7 @@ export class Order implements OnInit {
   cartItems: CartItem[] = [];
   paymentSuccessMessage: string = '';
   showPaymentSuccess: boolean = false;
+  currentUserId: string | number | null = null;
 
   constructor(
     private authService: AuthService,
@@ -35,43 +36,97 @@ export class Order implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadNewOrderFlow();
+    this.loadOrderFlow();
   }
 
-  private loadNewOrderFlow(): void {
-    this.cartItems = [];
-    this.userName = 'Demo User';
-    this.userEmail = 'demo@example.com';
-    this.userPhone = '1234567890';
+  private loadOrderFlow(): void {
+    this.authService.currentUser$.subscribe(currentUser => {
+      if (currentUser && currentUser.id) {
+        this.currentUserId = currentUser.id;
+        this.userName = currentUser.name || '';
+        this.userEmail = currentUser.email || '';
+        this.userPhone = currentUser.phone || 0;
+        this.userAddress = currentUser.address || '';
+        
+        this.loadCartItems();
+      } else {
+        this.currentUserId = 1;
+        this.userName = 'Demo User';
+        this.userEmail = 'demo@example.com';
+        this.userPhone = 1234567890;
+        this.userAddress = '';
+        
+        this.loadCartItems();
+      }
+    });
     
     this.showAddressForm = false;
     this.showPaymentForm = false;
   }
 
-  changeQty(id: number, change: number) {
-    const userId = 1; // Default user ID for demo
-    this.cartService.updateQuantity(userId, id, change).subscribe(
-      (data) => {}
-    );
+  private loadCartItems(): void {
+    if (!this.currentUserId) return;
+    
+    this.cartService.getCart(this.currentUserId).subscribe(cartData => {
+      this.cartItems = Array.isArray(cartData) ? cartData : [];
+      this.cartService.updateCartItems(this.cartItems);
+    });
   }
 
-  remove(id: number) {
-    const userId = 1; // Default user ID for demo
-    this.cartService.removeFromCart(userId, id).subscribe(
-      (data) => {}
-    );
+  changeQty(foodId: number, delta: number) {
+    if (!this.currentUserId) return;
+    
+    const currentItem = this.cartItems.find(item => item.id === foodId);
+    if (!currentItem) return;
+    
+    const newQuantity = currentItem.quantity + delta;
+    
+    if (newQuantity <= 0) {
+      this.cartService.removeFromCart(this.currentUserId, foodId).subscribe(() => {
+        this.loadCartItems();
+      });
+    } else {
+      currentItem.quantity = newQuantity;
+      
+      this.cartService.updateQuantity(this.currentUserId, foodId, newQuantity).subscribe(() => {
+        this.loadCartItems();
+      });
+    }
+  }
+
+  remove(foodId: number) {
+    if (!this.currentUserId) return;
+    this.cartService.removeFromCart(this.currentUserId, foodId).subscribe(() => {
+      this.loadCartItems();
+    });
   }
 
   getTotalPrice(): number {
     return this.cartItems.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
   }
 
+  getFormattedTotalPrice(): string {
+    return this.getTotalPrice().toFixed(2);
+  }
+
+  getFormattedPrice(price: number): string {
+    return price.toFixed(2);
+  }
+
+  getFormattedItemTotal(price: number, quantity: number): string {
+    return (price * quantity).toFixed(2);
+  }
+
   proceedToAddress() {
-    this.showAddressForm = true;
+    if (!this.userAddress || this.userAddress.trim().length === 0) {
+      this.showAddressForm = true;
+    } else {
+      this.showPaymentForm = true;
+    }
   }
 
   submitAddress() {
-    if(!this.userAddress || this.userAddress.trim().length === 0) {
+    if (!this.userAddress || this.userAddress.trim().length === 0) {
       this.addressError = true;
       return;
     }
@@ -81,32 +136,29 @@ export class Order implements OnInit {
   }
 
   onPaymentComplete(paymentMethod: string) {
-    const total = this.getTotalPrice();
-    const orderId = Date.now();
-    const order: OrderModel = {
-      id: orderId,
-      userId: 1,
-      items: this.cartItems,
-      total: total,
-      orderDate: new Date().toISOString(),
-      status: 'paid',
-      address: this.userAddress,
-      customerName: this.userName,
-      customerPhone: this.userPhone,
-      customerEmail: this.userEmail
-    };
+    if (!this.currentUserId || this.cartItems.length === 0) {
+      this.paymentSuccessMessage = 'Cannot process order. Please try again.';
+      this.showPaymentSuccess = true;
+      this.showPaymentForm = false;
+      return;
+    }
 
-    this.orderService.createOrder(order).subscribe(
-      (data) => {
-        const userId = 1; 
-        this.cartService.clearCart(userId).subscribe(
-          () => {
-            this.paymentSuccessMessage = `Payment successful using ${paymentMethod} having Order ID: ${orderId}`;
-            this.showPaymentSuccess = true;
-            this.showPaymentForm = false;
-          }
-        );
+    this.orderService.createOrderFromCart(this.currentUserId, this.userAddress || '').subscribe({
+      next: (order) => {
+        this.paymentSuccessMessage = `Payment successful using ${paymentMethod}! Order ID: ${order.id}`;
+        this.showPaymentSuccess = true;
+        this.showPaymentForm = false;
+        
+        this.cartItems = [];
+        this.cartService.updateCartItems([]);
+        
+        this.orderService.updateOrderStatus(order.id, 'Paid').subscribe();
+      },
+      error: (error) => {
+        this.paymentSuccessMessage = 'Failed to create order. Please try again.';
+        this.showPaymentSuccess = true;
+        this.showPaymentForm = false;
       }
-    );
+    });
   }
 }

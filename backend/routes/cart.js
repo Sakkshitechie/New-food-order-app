@@ -1,6 +1,6 @@
 const express = require('express');
 const CartItem = require('../models/CartItem');
-const { authenticateUser } = require('../middleware/auth');
+const Order = require('../models/Order');
 const router = express.Router();
 
 router.get('/:userId', async (req, res) => {
@@ -11,7 +11,6 @@ router.get('/:userId', async (req, res) => {
       name: item.name,
       price: item.price,
       image: item.image,
-      category: item.category,
       quantity: item.quantity,
       description: item.description || ''
     }));
@@ -24,7 +23,7 @@ router.get('/:userId', async (req, res) => {
 router.post('/:userId/add', async (req, res) => {
   try {
     const { userId } = req.params;
-    const { id, name, price, image, category } = req.body;
+    const { id, name, price, image } = req.body;
     let cartItem = await CartItem.findOne({ userId, foodItemId: id });
     if (cartItem) {
       cartItem.quantity += 1;
@@ -36,7 +35,6 @@ router.post('/:userId/add', async (req, res) => {
         name,
         price,
         image,
-        category,
         quantity: 1
       });
       await cartItem.save();
@@ -47,7 +45,6 @@ router.post('/:userId/add', async (req, res) => {
       name: item.name,
       price: item.price,
       image: item.image,
-      category: item.category,
       quantity: item.quantity,
       description: item.description || ''
     }));
@@ -76,7 +73,6 @@ router.patch('/:userId/item/:itemId', async (req, res) => {
       name: item.name,
       price: item.price,
       image: item.image,
-      category: item.category,
       quantity: item.quantity,
       description: item.description || ''
     }));
@@ -97,7 +93,6 @@ router.delete('/:userId/item/:itemId', async (req, res) => {
       name: item.name,
       price: item.price,
       image: item.image,
-      category: item.category,
       quantity: item.quantity,
       description: item.description || ''
     }));
@@ -114,6 +109,49 @@ router.delete('/:userId', async (req, res) => {
     res.json({ message: 'Cart cleared successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+router.post('/:userId/checkout', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { address } = req.body;
+    
+    const cartItems = await CartItem.find({ userId });
+    if (cartItems.length === 0) {
+      return res.status(400).json({ message: 'Cart is empty' });
+    }
+
+    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    const lastOrder = await Order.findOne().sort({ id: -1 });
+    const newOrderId = lastOrder ? lastOrder.id + 1 : 1001;
+    
+    const orderData = {
+      id: newOrderId,
+      userId: userId,
+      items: cartItems.map(item => ({
+        id: item.foodItemId,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        quantity: item.quantity,
+        description: item.description || ''
+      })),
+      total: total,
+      orderDate: new Date().toISOString(),
+      status: 'Pending',
+      address: address || ''
+    };
+    
+    const order = new Order(orderData);
+    const savedOrder = await order.save();
+    
+    await CartItem.deleteMany({ userId });
+    
+    res.status(201).json(savedOrder);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 });
 
