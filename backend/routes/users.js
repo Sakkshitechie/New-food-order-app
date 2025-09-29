@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const router = express.Router();
 
@@ -60,6 +61,11 @@ router.get('/check/:email', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
+    // Validate if the ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid user ID format' });
+    }
+    
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -260,6 +266,10 @@ router.post('/logout', (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid user ID format', success: false });
+    }
+    
     const { name, email, phone } = req.body;
     const userId = req.params.id;
     
@@ -354,6 +364,11 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
+    // Validate if the ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid user ID format' });
+    }
+    
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
