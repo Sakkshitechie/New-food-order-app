@@ -1,6 +1,5 @@
 const express = require('express');
 const User = require('../models/User');
-const { authenticateUser, optionalAuth } = require('../middleware/auth');
 const router = express.Router();
 
 const formatUserResponse = (user) => {
@@ -28,7 +27,7 @@ const validatePhoneNumber = (phone) => {
   return { valid: true, normalizedPhone };
 };
 
-router.get('/me', optionalAuth, (req, res) => {
+router.get('/me', (req, res) => {
   try {
     res.json({ user: null });
   } catch (error) {

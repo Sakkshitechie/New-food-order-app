@@ -1,6 +1,5 @@
 const express = require('express');
 const FoodItem = require('../models/FoodItem');
-const { authenticateUser, optionalAuth } = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
