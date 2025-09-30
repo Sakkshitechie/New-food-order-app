@@ -66,6 +66,7 @@ export class MenuCards implements OnInit, AfterViewInit {
         this.isLoggedIn = false;
       }
       this.loadCartItems();
+      setTimeout(() => this.initializeTooltips(), 100);
     });
 
     if (this.items.length === 0) {

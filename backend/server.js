@@ -242,30 +242,24 @@ class FoodOrderingServer extends EventEmitter {
         }
 
         this.on('stateChange', ({ from, to }) => {
-            console.log(`Server state changed: ${from} -> ${to}`);
         });
 
         this.on(DATABASE_CONNECTED, () => {
-            console.log('Database connected successfully');
         });
 
         this.on(DATABASE_DISCONNECTED, () => {
-            console.log('Database disconnected');
         });
 
         this.on(DATABASE_ERROR, (error) => {
-            console.error('Database error:', error.message);
         });
 
         process.on('SIGTERM', () => this.gracefulShutdown('SIGTERM'));
         process.on('SIGINT', () => this.gracefulShutdown('SIGINT'));
         process.on('uncaughtException', (error) => {
-            console.error('Uncaught Exception:', error);
             this.handleError(error);
             process.exit(1);
         });
         process.on('unhandledRejection', (reason, promise) => {
-            console.error('Unhandled Rejection at:', promise, 'reason:', reason);
             this.handleError(new ServerError(`Unhandled Promise Rejection: ${reason}`));
         });
     }
@@ -287,7 +281,6 @@ class FoodOrderingServer extends EventEmitter {
             if (process.env.NODE_ENV === 'development') {
                 mongoose.set('debug', (coll, method, query, doc) => {
                     this.state.metrics.dbQueries++;
-                    console.log(`MongoDB ${method} on ${coll}:`, query);
                 });
             }
 
@@ -300,7 +293,6 @@ class FoodOrderingServer extends EventEmitter {
 
     async connect() {
         if (this.state.current !== STATE_CLOSED) {
-            console.log(`Server already in state: ${this.state.current}`);
             return;
         }
 
@@ -320,11 +312,6 @@ class FoodOrderingServer extends EventEmitter {
             stateTransition(this, STATE_CONNECTED);
             this.state.startTime = new Date();
             this.startHealthMonitoring();
-            
-            console.log(`Food Ordering Server is running on port ${this.options.port}`);
-            console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-            console.log(`Database: ${this.options.mongoUri}`);
-            console.log(`CORS enabled for: ${this.options.corsOrigin}`);
             
             this.emit(SERVER_CONNECT, this);
 
@@ -361,8 +348,6 @@ class FoodOrderingServer extends EventEmitter {
             stateTransition(this, STATE_CLOSED);
             this.emit(SERVER_CLOSE);
 
-            console.log('Server shut down successfully');
-            
             if (callback) callback();
 
         } catch (error) {
@@ -373,7 +358,6 @@ class FoodOrderingServer extends EventEmitter {
     }
 
     async gracefulShutdown(signal) {
-        console.log(`\nReceived ${signal}. Starting graceful shutdown...`);
         if (this.httpServer) {
             this.httpServer.close();
         }
@@ -382,13 +366,8 @@ class FoodOrderingServer extends EventEmitter {
         let elapsed = 0;
 
         while (this.state.operationCount > 0 && elapsed < shutdownTimeout) {
-            console.log(`Waiting for ${this.state.operationCount} operations to complete...`);
             await new Promise(resolve => setTimeout(resolve, checkInterval));
             elapsed += checkInterval;
-        }
-
-        if (this.state.operationCount > 0) {
-            console.log(`Forcing shutdown with ${this.state.operationCount} operations still running`);
         }
 
         await this.destroy();
@@ -401,7 +380,6 @@ class FoodOrderingServer extends EventEmitter {
             this.state.lastHealthCheck = new Date();
             
             if (health.status !== 'healthy') {
-                console.warn('Health check failed:', health);
                 this.emit('healthCheckFailed', health);
             }
         }, this.options.healthCheckInterval);
@@ -482,15 +460,6 @@ class FoodOrderingServer extends EventEmitter {
             this.state.errors.shift();
         }
         this.emit(SERVER_ERROR, error);
-
-        if (error instanceof DatabaseError || error instanceof ConnectionError) {
-            console.error('Critical Error:', error.message);
-        } else {
-            console.error('Error:', error.message);
-        }
-        if (process.env.NODE_ENV === 'development') {
-            console.error(error.stack);
-        }
     }
     getState() { return this.state.current; }
     setState(newState) { this.state.current = newState; }
@@ -515,7 +484,6 @@ if (require.main === module) {
     const server = new FoodOrderingServer();
     
     server.connect().catch((error) => {
-        console.error('Failed to start server:', error.message);
         process.exit(1);
     });
 }

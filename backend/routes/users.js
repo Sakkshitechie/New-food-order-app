@@ -3,29 +3,26 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const router = express.Router();
 
-const formatUserResponse = (user) => {
-  const userResponse = user.toObject();
-  delete userResponse.password;
-  userResponse.id = userResponse._id;
-  return userResponse;
-};
-
 const validatePhoneNumber = (phone) => {
-  if (!phone) return { valid: true, normalizedPhone: null };
-  
-  const normalizedPhone = phone.toString().replace(/[\s\-\(\)]/g, '').trim();
-  
-  const phoneRegex = /^[6-9]{1}\d{9}$/;
-  
-  if (!phoneRegex.test(normalizedPhone)) {
+  // Phone is required
+  if (!phone) {
     return { 
       valid: false, 
-      normalizedPhone: null,
+      message: 'Phone number is required'
+    };
+  }
+  
+  // Indian phone number validation: 10 digits starting with 6, 7, 8, or 9
+  const phoneRegex = /^[6-9]\d{9}$/;
+  
+  if (!phoneRegex.test(phone.toString())) {
+    return { 
+      valid: false, 
       message: 'Phone number must be 10 digits and start with 6, 7, 8, or 9'
     };
   }
   
-  return { valid: true, normalizedPhone };
+  return { valid: true };
 };
 
 router.get('/me', (req, res) => {
@@ -61,7 +58,6 @@ router.get('/check/:email', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    // Validate if the ID is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: 'Invalid user ID format' });
     }
@@ -80,13 +76,19 @@ router.post('/register', async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
     const normalizedEmail = email ? email.toLowerCase().trim() : '';
-    
     if (!name || !normalizedEmail || !password) {
       return res.status(400).json({ 
         message: 'Name, email, and password are required',
         success: false 
       });
     }
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: 'Password must be at least 6 characters long',
+        success: false
+      });
+    }
+    
     const phoneValidation = validatePhoneNumber(phone);
     if (!phoneValidation.valid) {
       return res.status(400).json({
@@ -94,13 +96,7 @@ router.post('/register', async (req, res) => {
         success: false
       });
     }
-    
-    if (!phone) {
-      return res.status(400).json({
-        message: 'Phone number is required',
-        success: false
-      });
-    }
+
     const existingEmailUser = await User.findOne({ email: normalizedEmail });
     if (existingEmailUser) {
       return res.status(409).json({ 
@@ -109,28 +105,25 @@ router.post('/register', async (req, res) => {
       });
     }
     
-    if (phoneValidation.normalizedPhone) {
-      const existingPhoneUser = await User.findOne({ phone: phoneValidation.normalizedPhone });
-      if (existingPhoneUser) {
-        return res.status(409).json({ 
-          message: 'This phone number is already registered. Please use a different phone number.',
-          success: false 
-        });
-      }
+    // Check if phone number already exists
+    const existingPhoneUser = await User.findOne({ phone: phone });
+    if (existingPhoneUser) {
+      return res.status(409).json({ 
+        message: 'This phone number is already registered. Please use a different phone number.',
+        success: false 
+      });
     }
-    
+
     const user = new User({
       name: name.trim(),
       email: normalizedEmail,
-      password,
-      phone: phoneValidation.normalizedPhone
+      password, 
+      phone: phone
     });
+    
     const savedUser = await user.save();
-    
-    const userResponse = formatUserResponse(savedUser);
-    
     res.status(201).json({ 
-      user: userResponse,
+      user: savedUser.toJSON(),
       success: true,
       message: 'User registered successfully'
     });
@@ -158,6 +151,19 @@ router.post('/', async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
     const normalizedEmail = email ? email.toLowerCase().trim() : '';
+    if (!name || !normalizedEmail || !password) {
+      return res.status(400).json({ 
+        message: 'Name, email, and password are required',
+        success: false 
+      });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: 'Password must be at least 6 characters long',
+        success: false
+      });
+    }
+    
     const phoneValidation = validatePhoneNumber(phone);
     if (!phoneValidation.valid) {
       return res.status(400).json({
@@ -165,6 +171,7 @@ router.post('/', async (req, res) => {
         success: false
       });
     }
+
     const existingEmailUser = await User.findOne({ email: normalizedEmail });
     if (existingEmailUser) {
       return res.status(409).json({ 
@@ -172,28 +179,26 @@ router.post('/', async (req, res) => {
         success: false 
       });
     }
-    if (phoneValidation.normalizedPhone) {
-      const existingPhoneUser = await User.findOne({ phone: phoneValidation.normalizedPhone });
-      if (existingPhoneUser) {
-        return res.status(409).json({ 
-          message: 'This phone number is already registered. Please use a different phone number.',
-          success: false 
-        });
-      }
+    
+    // Check if phone number already exists
+    const existingPhoneUser = await User.findOne({ phone: phone });
+    if (existingPhoneUser) {
+      return res.status(409).json({ 
+        message: 'This phone number is already registered. Please use a different phone number.',
+        success: false 
+      });
     }
     
     const user = new User({
-      name,
+      name: name.trim(),
       email: normalizedEmail,
-      password,
-      phone: phoneValidation.normalizedPhone
+      password, 
+      phone: phone
     });
     const savedUser = await user.save();
     
-    const userResponse = formatUserResponse(savedUser);
-    
     res.status(201).json({ 
-      user: userResponse,
+      user: savedUser.toJSON(), 
       success: true,
       message: 'User created successfully'
     });
@@ -228,31 +233,27 @@ router.post('/login', async (req, res) => {
         success: false 
       });
     }
-    const user = await User.findOne({ email: normalizedEmail });
-    
-    if (!user) {
+
+    try {
+      const user = await User.findByCredentials(normalizedEmail, password);
+      
+      res.json({ 
+        user: user.toJSON(),
+        success: true,
+        message: 'Login successful'
+      });
+    } catch (authError) {
       return res.status(401).json({ 
         message: 'Invalid email or password', 
         success: false 
       });
     }
     
-    if (user.password !== password) {
-      return res.status(401).json({ 
-        message: 'Invalid email or password', 
-        success: false 
-      });
-    }
-    
-    const userResponse = formatUserResponse(user);
-    
-    res.json({ 
-      user: userResponse,
-      success: true,
-      message: 'Login successful'
-    });
   } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
+    res.status(500).json({ 
+      message: 'An error occurred during login. Please try again.', 
+      success: false 
+    });
   }
 });
 
@@ -281,12 +282,6 @@ router.put('/:id', async (req, res) => {
         success: false
       });
     }
-    if (!phone) {
-      return res.status(400).json({
-        message: 'Phone number is required',
-        success: false
-      });
-    }
     if (normalizedEmail) {
       const existingEmailUser = await User.findOne({ 
         email: normalizedEmail, 
@@ -300,23 +295,22 @@ router.put('/:id', async (req, res) => {
       }
     }
     
-    if (phoneValidation.normalizedPhone) {
-      const existingPhoneUser = await User.findOne({ 
-        phone: phoneValidation.normalizedPhone, 
-        _id: { $ne: userId } 
+    // Check if phone number already exists for different user
+    const existingPhoneUser = await User.findOne({ 
+      phone: phone, 
+      _id: { $ne: userId } 
+    });
+    if (existingPhoneUser) {
+      return res.status(409).json({ 
+        message: 'This phone number is already registered by another user. Please use a different phone number.',
+        success: false 
       });
-      if (existingPhoneUser) {
-        return res.status(409).json({ 
-          message: 'This phone number is already registered by another user. Please use a different phone number.',
-          success: false 
-        });
-      }
     }
     
     const updateData = {};
     if (name) updateData.name = name.trim();
     if (normalizedEmail) updateData.email = normalizedEmail;
-    if (phoneValidation.normalizedPhone) updateData.phone = phoneValidation.normalizedPhone;
+    updateData.phone = phone;
     
     const user = await User.findByIdAndUpdate(
       userId,
@@ -328,8 +322,7 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ message: 'User not found', success: false });
     }
     
-    const userResponse = formatUserResponse(user);
-    res.json({ user: userResponse, success: true, message: 'Profile updated successfully' });
+    res.json({ user: user.toJSON(), success: true, message: 'Profile updated successfully' });
   } catch (error) {
     if (error.name === 'ValidationError') {
       const validationErrors = Object.values(error.errors).map(err => err.message);
@@ -364,7 +357,6 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    // Validate if the ID is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: 'Invalid user ID format' });
     }

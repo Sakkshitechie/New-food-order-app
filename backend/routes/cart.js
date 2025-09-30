@@ -24,6 +24,7 @@ router.post('/:userId/add', async (req, res) => {
   try {
     const { userId } = req.params;
     const { id, name, price, image } = req.body;
+    
     let cartItem = await CartItem.findOne({ userId, foodItemId: id });
     if (cartItem) {
       cartItem.quantity += 1;
