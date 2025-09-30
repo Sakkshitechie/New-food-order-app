@@ -1,29 +1,109 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const User = require('../models/User');
+const { body, param, validationResult } = require('express-validator');
 const router = express.Router();
 
-const validatePhoneNumber = (phone) => {
-  // Phone is required
-  if (!phone) {
-    return { 
-      valid: false, 
-      message: 'Phone number is required'
-    };
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: errors.array()[0].msg,
+      errors: errors.array()
+    });
   }
-  
-  // Indian phone number validation: 10 digits starting with 6, 7, 8, or 9
-  const phoneRegex = /^[6-9]\d{9}$/;
-  
-  if (!phoneRegex.test(phone.toString())) {
-    return { 
-      valid: false, 
-      message: 'Phone number must be 10 digits and start with 6, 7, 8, or 9'
-    };
-  }
-  
-  return { valid: true };
+  next();
 };
+
+const validateUserRegistration = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Name is required')
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Name must be between 2 and 50 characters'),
+  
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+  
+  body('password')
+    .notEmpty()
+    .withMessage('Password is required')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters long'),
+  
+  body('phone')
+    .notEmpty()
+    .withMessage('Phone number is required')
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Phone number must be 10 digits and start with 6, 7, 8, or 9')
+    .isNumeric()
+    .withMessage('Phone number must contain only numbers'),
+  
+  handleValidationErrors
+];
+
+const validateUserLogin = [
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+  
+  body('password')
+    .notEmpty()
+    .withMessage('Password is required'),
+  
+  handleValidationErrors
+];
+const validateMongoId = [
+  param('id')
+    .isMongoId()
+    .withMessage('Invalid user ID format'),
+  handleValidationErrors
+];
+
+const validateUserUpdate = [
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Name must be between 2 and 50 characters'),
+  
+  body('email')
+    .optional()
+    .trim()
+    .isEmail()
+    .withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+  
+  body('phone')
+    .optional()
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Phone number must be 10 digits and start with 6, 7, 8, or 9')
+    .isNumeric()
+    .withMessage('Phone number must contain only numbers'),
+  
+  param('id')
+    .isMongoId()
+    .withMessage('Invalid user ID format'),
+  
+  handleValidationErrors
+];
+
+const validateEmailParam = [
+  param('email')
+    .isEmail()
+    .withMessage('Invalid email format'),
+  handleValidationErrors
+];
 
 router.get('/me', (req, res) => {
   try {
@@ -42,9 +122,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/check/:email', async (req, res) => {
+router.get('/check/:email', validateEmailParam, async (req, res) => {
   try {
-    const email = req.params.email.toLowerCase().trim();
+    const email = req.params.email;
     const user = await User.findOne({ email }).select('-password');
     if (user) {
       res.json({ exists: true, user });
@@ -56,12 +136,8 @@ router.get('/check/:email', async (req, res) => {
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateMongoId, async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid user ID format' });
-    }
-    
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -72,32 +148,11 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/register', async (req, res) => {
+router.post('/register', validateUserRegistration, async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
-    const normalizedEmail = email ? email.toLowerCase().trim() : '';
-    if (!name || !normalizedEmail || !password) {
-      return res.status(400).json({ 
-        message: 'Name, email, and password are required',
-        success: false 
-      });
-    }
-    if (password.length < 6) {
-      return res.status(400).json({
-        message: 'Password must be at least 6 characters long',
-        success: false
-      });
-    }
-    
-    const phoneValidation = validatePhoneNumber(phone);
-    if (!phoneValidation.valid) {
-      return res.status(400).json({
-        message: phoneValidation.message,
-        success: false
-      });
-    }
 
-    const existingEmailUser = await User.findOne({ email: normalizedEmail });
+    const existingEmailUser = await User.findOne({ email });
     if (existingEmailUser) {
       return res.status(409).json({ 
         message: 'This email address is already registered. Please use a different email or try logging in.',
@@ -114,12 +169,7 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    const user = new User({
-      name: name.trim(),
-      email: normalizedEmail,
-      password, 
-      phone: phone
-    });
+    const user = new User({name,email,password,phone});
     
     const savedUser = await user.save();
     res.status(201).json({ 
@@ -147,32 +197,11 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', validateUserRegistration, async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
-    const normalizedEmail = email ? email.toLowerCase().trim() : '';
-    if (!name || !normalizedEmail || !password) {
-      return res.status(400).json({ 
-        message: 'Name, email, and password are required',
-        success: false 
-      });
-    }
-    if (password.length < 6) {
-      return res.status(400).json({
-        message: 'Password must be at least 6 characters long',
-        success: false
-      });
-    }
-    
-    const phoneValidation = validatePhoneNumber(phone);
-    if (!phoneValidation.valid) {
-      return res.status(400).json({
-        message: phoneValidation.message,
-        success: false
-      });
-    }
 
-    const existingEmailUser = await User.findOne({ email: normalizedEmail });
+    const existingEmailUser = await User.findOne({ email });
     if (existingEmailUser) {
       return res.status(409).json({ 
         message: 'This email address is already registered. Please use a different email.',
@@ -180,7 +209,6 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Check if phone number already exists
     const existingPhoneUser = await User.findOne({ phone: phone });
     if (existingPhoneUser) {
       return res.status(409).json({ 
@@ -190,10 +218,10 @@ router.post('/', async (req, res) => {
     }
     
     const user = new User({
-      name: name.trim(),
-      email: normalizedEmail,
+      name,
+      email,
       password, 
-      phone: phone
+      phone
     });
     const savedUser = await user.save();
     
@@ -222,20 +250,12 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', validateUserLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
-    const normalizedEmail = email ? email.toLowerCase().trim() : '';
-    
-    if (!normalizedEmail || !password) {
-      return res.status(400).json({ 
-        message: 'Email and password are required', 
-        success: false 
-      });
-    }
 
     try {
-      const user = await User.findByCredentials(normalizedEmail, password);
+      const user = await User.findByCredentials(email, password);
       
       res.json({ 
         user: user.toJSON(),
@@ -265,26 +285,14 @@ router.post('/logout', (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateUserUpdate, async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid user ID format', success: false });
-    }
-    
     const { name, email, phone } = req.body;
     const userId = req.params.id;
     
-    const normalizedEmail = email ? email.toLowerCase().trim() : '';
-    const phoneValidation = validatePhoneNumber(phone);
-    if (!phoneValidation.valid) {
-      return res.status(400).json({
-        message: phoneValidation.message,
-        success: false
-      });
-    }
-    if (normalizedEmail) {
+    if (email) {
       const existingEmailUser = await User.findOne({ 
-        email: normalizedEmail, 
+        email, 
         _id: { $ne: userId } 
       });
       if (existingEmailUser) {
@@ -295,22 +303,23 @@ router.put('/:id', async (req, res) => {
       }
     }
     
-    // Check if phone number already exists for different user
-    const existingPhoneUser = await User.findOne({ 
-      phone: phone, 
-      _id: { $ne: userId } 
-    });
-    if (existingPhoneUser) {
-      return res.status(409).json({ 
-        message: 'This phone number is already registered by another user. Please use a different phone number.',
-        success: false 
+    if (phone) {
+      const existingPhoneUser = await User.findOne({ 
+        phone: phone, 
+        _id: { $ne: userId } 
       });
+      if (existingPhoneUser) {
+        return res.status(409).json({ 
+          message: 'This phone number is already registered by another user. Please use a different phone number.',
+          success: false 
+        });
+      }
     }
     
     const updateData = {};
-    if (name) updateData.name = name.trim();
-    if (normalizedEmail) updateData.email = normalizedEmail;
-    updateData.phone = phone;
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+    if (phone) updateData.phone = phone;
     
     const user = await User.findByIdAndUpdate(
       userId,
@@ -355,12 +364,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validateMongoId, async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid user ID format' });
-    }
-    
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
