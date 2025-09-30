@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CartItem } from '../Models/CartItem';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class CartService {
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   public cartItems$ = this.cartItemsSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   // Update cart items and notify subscribers
   updateCartItems(items: CartItem[]) {
@@ -26,29 +27,29 @@ export class CartService {
     return this.cartItemsValue.reduce((total, item) => total + item.quantity, 0);
   }
 
-  // Pure HTTP GET for cart by user ID
+  // Get cart with authentication
   getCart(userId: string | number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${userId}`);
+    return this.http.get(`${this.apiUrl}/${userId}`, { headers: this.authService.getAuthHeaders() });
   }
 
-  // Pure HTTP POST for add to cart
+  // Add to cart with authentication
   addToCart(userId: string | number, item: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${userId}/add`, item);
+    return this.http.post(`${this.apiUrl}/${userId}/add`, item, { headers: this.authService.getAuthHeaders() });
   }
 
-  // Pure HTTP DELETE for remove from cart
+  // Remove from cart with authentication
   removeFromCart(userId: string | number, itemId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${userId}/item/${itemId}`);
+    return this.http.delete(`${this.apiUrl}/${userId}/item/${itemId}`, { headers: this.authService.getAuthHeaders() });
   }
 
-  // Pure HTTP PATCH for update quantity
+  // Update quantity with authentication
   updateQuantity(userId: string | number, itemId: number, quantity: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${userId}/item/${itemId}`, { quantity });
+    return this.http.patch(`${this.apiUrl}/${userId}/item/${itemId}`, { quantity }, { headers: this.authService.getAuthHeaders() });
   }
 
-  // Pure HTTP DELETE for clear cart
+  // Clear cart with authentication
   clearCart(userId: string | number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${userId}`);
+    return this.http.delete(`${this.apiUrl}/${userId}`, { headers: this.authService.getAuthHeaders() });
   }
 
   // Helper method to load and update cart state

@@ -1,8 +1,9 @@
 const express = require('express');
 const Order = require('../models/Order');
+const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.query;
     let query = {};
@@ -16,7 +17,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     let order = await Order.findOne({ id: req.params.id });
     if (!order) {
@@ -31,7 +32,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const lastOrder = await Order.findOne().sort({ id: -1 });
     const newOrderId = lastOrder ? lastOrder.id + 1 : 1001;

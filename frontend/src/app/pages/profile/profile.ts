@@ -64,7 +64,11 @@ export class Profile implements OnInit {
         this.isLoading = false;
         
         if (response?.user) {
-          this.authService.setCurrentUser(response.user);
+          const currentToken = this.authService.getAccessToken();
+          const currentRefreshToken = this.authService.getRefreshToken();
+          if (currentToken) {
+            this.authService.setCurrentUser(response.user, currentToken, currentRefreshToken || undefined);
+          }
           this.user = { ...response.user };
           this.originalUser = { ...response.user };
         }

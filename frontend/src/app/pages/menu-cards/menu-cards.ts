@@ -30,21 +30,27 @@ export class MenuCards implements OnInit, AfterViewInit {
   ) {}
 
   addToCart(food: FoodItem) {
-    if (!this.isLoggedIn) {
+    if (!this.isLoggedIn || !this.currentUserId) {
+      this.router.navigate(['/login']);
       return;
     }
-    
-    const userId = this.currentUserId || 1;
-    
+    const userId = String(this.currentUserId);
     const cartData = {
       id: food.id,
       name: food.name,
       price: food.price,
       image: food.image
     };
-    
-    this.cartService.addToCart(userId, cartData).subscribe(() => {
-      this.loadCartItems();
+    this.cartService.addToCart(userId, cartData).subscribe({
+      next: () => {
+        this.loadCartItems();
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.handleAuthError();
+          this.router.navigate(['/login']);
+        }
+      }
     });
   }
 
@@ -59,13 +65,12 @@ export class MenuCards implements OnInit, AfterViewInit {
     this.showViewCart = false;
 
     this.authService.currentUser$.subscribe(currentUser => {
-      if (currentUser && currentUser.id) {
-        this.currentUserId = currentUser.id;
-        this.isLoggedIn = true;
-      } else {
-        this.currentUserId = 1;
-        this.isLoggedIn = false;
+      let userId = null;
+      if (currentUser) {
+        userId = currentUser.id || currentUser._id || null;
       }
+      this.currentUserId = userId;
+      this.isLoggedIn = !!userId;
       this.loadCartItems();
       setTimeout(() => this.initializeTooltips(), 100);
     });
@@ -88,12 +93,18 @@ export class MenuCards implements OnInit, AfterViewInit {
       this.cartService.updateCartItems([]);
       return;
     }
-    
-    const userId = this.currentUserId;
-    this.cartService.getCart(userId).subscribe(cartData => {
-      this.cartItems = Array.isArray(cartData) ? cartData : [];
-      this.showViewCart = this.cartItems.length > 0;
-      this.cartService.updateCartItems(this.cartItems);
+    const userId = String(this.currentUserId);
+    this.cartService.getCart(userId).subscribe({
+      next: (cartData) => {
+        this.cartItems = Array.isArray(cartData) ? cartData : [];
+        this.showViewCart = this.cartItems.length > 0;
+        this.cartService.updateCartItems(this.cartItems);
+      },
+      error: (error) => {
+        this.cartItems = [];
+        this.showViewCart = false;
+        this.cartService.updateCartItems([]);
+      }
     });
   }
 
@@ -122,8 +133,7 @@ export class MenuCards implements OnInit, AfterViewInit {
 
   removeFromCart(foodId: number) {
     if (!this.isLoggedIn || !this.currentUserId) return;
-    
-    const userId = this.currentUserId;
+    const userId = String(this.currentUserId);
     this.cartService.removeFromCart(userId, foodId).subscribe(() => {
       this.loadCartItems();
     });
@@ -131,8 +141,7 @@ export class MenuCards implements OnInit, AfterViewInit {
 
   changeQuantity(foodId: number, newQuantity: number) {
     if (!this.isLoggedIn || !this.currentUserId) return;
-    
-    const userId = this.currentUserId;
+    const userId = String(this.currentUserId);
     if (newQuantity <= 0) {
       this.removeFromCart(foodId);
     } else {
@@ -144,7 +153,6 @@ export class MenuCards implements OnInit, AfterViewInit {
 
   changeQty(foodId: number, delta: number) {
     if (!this.isLoggedIn || !this.currentUserId) return;
-    
     const currentQuantity = this.getCartItemQuantity(foodId);
     const newQuantity = currentQuantity + delta;
     this.changeQuantity(foodId, newQuantity);

@@ -1,11 +1,14 @@
 const express = require('express');
 const CartItem = require('../models/CartItem');
 const Order = require('../models/Order');
+const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', authenticateToken, async (req, res) => {
   try {
-    const cartItems = await CartItem.find({ userId: req.params.userId });
+    // Always use authenticated user's ID from token
+    const userId = req.user._id;
+    const cartItems = await CartItem.find({ userId });
     const transformedItems = cartItems.map(item => ({
       id: item.foodItemId,
       name: item.name,
@@ -20,11 +23,11 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
-router.post('/:userId/add', async (req, res) => {
+router.post('/:userId/add', authenticateToken, async (req, res) => {
   try {
-    const { userId } = req.params;
+    // Always use authenticated user's ID from token
+    const userId = req.user._id;
     const { id, name, price, image } = req.body;
-    
     let cartItem = await CartItem.findOne({ userId, foodItemId: id });
     if (cartItem) {
       cartItem.quantity += 1;
@@ -55,9 +58,10 @@ router.post('/:userId/add', async (req, res) => {
   }
 });
 
-router.patch('/:userId/item/:itemId', async (req, res) => {
+router.patch('/:userId/item/:itemId', authenticateToken, async (req, res) => {
   try {
-    const { userId, itemId } = req.params;
+    const { itemId } = req.params;
+    const userId = req.user._id;
     const { quantity } = req.body;
     if (quantity <= 0) {
       await CartItem.deleteOne({ userId, foodItemId: itemId });
@@ -83,10 +87,10 @@ router.patch('/:userId/item/:itemId', async (req, res) => {
   }
 });
 
-router.delete('/:userId/item/:itemId', async (req, res) => {
+router.delete('/:userId/item/:itemId', authenticateToken, async (req, res) => {
   try {
-    const { userId, itemId } = req.params;
-
+    const { itemId } = req.params;
+    const userId = req.user._id;
     await CartItem.deleteOne({ userId, foodItemId: itemId });
     const allCartItems = await CartItem.find({ userId });
     const transformedItems = allCartItems.map(item => ({
@@ -99,11 +103,11 @@ router.delete('/:userId/item/:itemId', async (req, res) => {
     }));
     res.json(transformedItems);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 });
 
-router.delete('/:userId', async (req, res) => {
+router.delete('/:userId', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
     await CartItem.deleteMany({ userId });
@@ -113,7 +117,7 @@ router.delete('/:userId', async (req, res) => {
   }
 });
 
-router.post('/:userId/checkout', async (req, res) => {
+router.post('/:userId/checkout', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
     const { address } = req.body;

@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/User');
 const { body, param, validationResult } = require('express-validator');
+const { generateToken, generateRefreshToken, authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 
 const handleValidationErrors = (req, res, next) => {
@@ -105,11 +106,20 @@ const validateEmailParam = [
   handleValidationErrors
 ];
 
-router.get('/me', (req, res) => {
+router.get('/debug/users', async (req, res) => {
   try {
-    res.json({ user: null });
+    const users = await User.find().select('email name');
+    res.json({ users, count: users.length });
   } catch (error) {
-    res.status(500).json({ user: null });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/me', authenticateToken, (req, res) => {
+  try {
+    res.json({ user: req.user, success: true });
+  } catch (error) {
+    res.status(500).json({ user: null, success: false });
   }
 });
 
@@ -253,16 +263,54 @@ router.post('/', validateUserRegistration, async (req, res) => {
 router.post('/login', validateUserLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt for:', email);
+    
+    // Check if user exists first
+    const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+    console.log('User exists in database:', !!existingUser);
+    
+    if (!existingUser) {
+      console.log('No user found with email:', email);
+      return res.status(401).json({ 
+        message: 'Invalid email or password', 
+        success: false 
+      });
+    }
 
     try {
       const user = await User.findByCredentials(email, password);
+      console.log('User authenticated successfully:', user.email);
       
-      res.json({ 
+      // Generate JWT tokens
+      const accessToken = generateToken(user);
+      const refreshToken = generateRefreshToken(user);
+      
+      console.log('Tokens generated:', { 
+        hasAccessToken: !!accessToken, 
+        hasRefreshToken: !!refreshToken 
+      });
+      
+      const response = {
         user: user.toJSON(),
+        accessToken,
+        refreshToken,
         success: true,
         message: 'Login successful'
+      };
+      
+      console.log('Backend sending response:', {
+        hasUser: !!response.user,
+        hasAccessToken: !!response.accessToken,
+        hasRefreshToken: !!response.refreshToken,
+        accessTokenKey: Object.keys(response).find(key => key.includes('Token') || key.includes('token')),
+        allKeys: Object.keys(response)
       });
+      
+      console.log('Full response object:', JSON.stringify(response, null, 2));
+      
+      res.json(response);
     } catch (authError) {
+      console.log('Authentication error:', authError.message);
       return res.status(401).json({ 
         message: 'Invalid email or password', 
         success: false 
@@ -270,6 +318,7 @@ router.post('/login', validateUserLogin, async (req, res) => {
     }
     
   } catch (error) {
+    console.error('Server error during login:', error);
     res.status(500).json({ 
       message: 'An error occurred during login. Please try again.', 
       success: false 
@@ -285,7 +334,7 @@ router.post('/logout', (req, res) => {
   }
 });
 
-router.put('/:id', validateUserUpdate, async (req, res) => {
+router.put('/:id', authenticateToken, validateUserUpdate, async (req, res) => {
   try {
     const { name, email, phone } = req.body;
     const userId = req.params.id;
@@ -317,10 +366,7 @@ router.put('/:id', validateUserUpdate, async (req, res) => {
     }
     
     const updateData = {};
-    if (name) updateData.name = name;
-    if (email) updateData.email = email;
     if (phone) updateData.phone = phone;
-    
     const user = await User.findByIdAndUpdate(
       userId,
       updateData,
@@ -329,44 +375,27 @@ router.put('/:id', validateUserUpdate, async (req, res) => {
     
     if (!user) {
       return res.status(404).json({ message: 'User not found', success: false });
-    }
-    
     res.json({ user: user.toJSON(), success: true, message: 'Profile updated successfully' });
-  } catch (error) {
+  } }
+    catch (error) {
     if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({ 
-        message: `Validation error: ${validationErrors.join(', ')}`, 
-        success: false 
-      });
+      };
     }
     
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
       if (field === 'email') {
         return res.status(409).json({ 
-          message: 'This email address is already registered by another user. Please use a different email.',
-          success: false 
-        });
-      } else if (field === 'phone') {
-        return res.status(409).json({ 
-          message: 'This phone number is already registered by another user. Please use a different phone number.',
-          success: false 
-        });
-      }
-      return res.status(409).json({ 
-        message: 'This information is already registered by another user. Please use different details.',
-        success: false 
+        message: 'This email address is already registered by another user. Please use a different email.',
+        success: false
       });
-    }
     
     res.status(500).json({ message: 'Server error occurred while updating profile', success: false });
   }
-});
+}});
 
 router.delete('/:id', validateMongoId, async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
