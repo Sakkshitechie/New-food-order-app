@@ -20,6 +20,7 @@ export class MenuCards implements OnInit, AfterViewInit {
   showViewCart: boolean = false;
   private currentUserId: number | string | null = null;
   isLoggedIn: boolean = false;
+  bootstrap: any;
 
   constructor(
     private foodService: FoodService,
@@ -96,9 +97,12 @@ export class MenuCards implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit() {
-    setTimeout(() => this.initializeTooltips(), 100);
-  }
+ ngAfterViewInit() {
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+    new (window as any).bootstrap.Tooltip(tooltipTriggerEl);
+  });
+}
 
   private initializeTooltips() {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

@@ -17,13 +17,26 @@
             <span class="fw-bold text-success">{{ food.price | currency:'USD':'symbol'}}</span>
             <div class="d-flex align-items-center">
               <ng-container *ngIf="!isInCart(food.id)">
+                <span
+                  *ngIf="!isLoggedIn"
+                  [attr.data-bs-toggle]="'tooltip'"
+                  [attr.data-bs-placement]="'top'"
+                  [attr.title]="'Please login first to order something'"
+                >
+                  <button 
+                    class="btn btn-success btn-sm" 
+                    (click)="addToCart(food)"
+                    disabled
+                    style="pointer-events: none;"
+                  >
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                  </button>
+                </span>
                 <button 
+                  *ngIf="isLoggedIn"
                   class="btn btn-success btn-sm" 
                   (click)="addToCart(food)"
-                  [disabled]="!isLoggedIn"
-                  [attr.data-bs-toggle]="!isLoggedIn ? 'tooltip' : null"
-                  [attr.data-bs-placement]="!isLoggedIn ? 'top' : null"
-                  [attr.title]="!isLoggedIn ? 'Login first' : null">
+                >
                   <i class="bi bi-cart-plus"></i> Add to Cart
                 </button>
               </ng-container>

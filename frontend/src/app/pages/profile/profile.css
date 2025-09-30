@@ -1,8 +1,7 @@
 .card { border-radius: 1rem; }
 .border{border-radius: 10px;
 padding: 5px;}
-
-/* Enhanced Profile Card Styling */
+ 
 .profile-card {
   width: 100%;
   max-width: 100%;
@@ -78,7 +77,6 @@ padding: 5px;}
 
 .save-button {
   display: block;
-  width: 100%;
   padding: 0.875rem;
   font-size: 1.1rem;
   font-weight: 500;
@@ -95,8 +93,33 @@ padding: 5px;}
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
 }
+ 
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+ 
+.cancel-button {
+  display: block;
+  padding: 0.875rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #adb5bd 0%, #6c757d 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
+}
 
-/* Orders Section Styling */
+.cancel-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+ 
 .orders-section {
   margin-top: 2rem;
 }
@@ -143,8 +166,7 @@ padding: 5px;}
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(111, 66, 193, 0.4);
 }
-
-/* Status Message Styling */
+ 
 .status-message {
   margin-top: 1rem;
   padding: 0.75rem;
