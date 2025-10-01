@@ -27,13 +27,10 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Pre-save middleware to hash password before saving
 userSchema.pre('save', async function(next) {
-  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) return next();
   
   try {
-    // Hash password with cost of 12 (higher is more secure but slower)
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(this.password, saltRounds);
     this.password = hashedPassword;
@@ -43,7 +40,6 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Instance method to check password
 userSchema.methods.comparePassword = async function(candidatePassword) {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
@@ -52,7 +48,6 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   }
 };
 
-// Static method to find user by email and verify password
 userSchema.statics.findByCredentials = async function(email, password) {
   const user = await this.findOne({ email: email.toLowerCase().trim() });
   if (!user) {
@@ -67,7 +62,6 @@ userSchema.statics.findByCredentials = async function(email, password) {
   return user;
 };
 
-// Remove password from JSON output and add id field
 userSchema.methods.toJSON = function() {
   const user = this.toObject();
   delete user.password;

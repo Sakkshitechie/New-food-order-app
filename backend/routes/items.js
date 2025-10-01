@@ -19,7 +19,6 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    // Validate if the ID is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: 'Invalid food item ID format' });
     }
@@ -29,56 +28,6 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Food item not found' });
     }
     res.json(food);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-router.post('/', async (req, res) => {
-  try {
-    const food = new FoodItem(req.body);
-    const savedFood = await food.save();
-    res.status(201).json(savedFood);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-router.put('/:id', async (req, res) => {
-  try {
-    // Validate if the ID is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid food item ID format' });
-    }
-    
-    const food = await FoodItem.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    
-    if (!food) {
-      return res.status(404).json({ message: 'Food item not found' });
-    }
-    
-    res.json(food);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-router.delete('/:id', async (req, res) => {
-  try {
-    // Validate if the ID is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid food item ID format' });
-    }
-    
-    const food = await FoodItem.findByIdAndDelete(req.params.id);
-    if (!food) {
-      return res.status(404).json({ message: 'Food item not found' });
-    }
-    res.json({ message: 'Food item deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

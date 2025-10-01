@@ -17,8 +17,6 @@ export class TokenStorageService {
   private readonly TOKEN_EXPIRES_KEY = 'tokenExpires';
 
   constructor() {}
-
-  // Store tokens with expiry information
   setTokens(accessToken: string, refreshToken: string, expiresIn: string = '15m'): void {
     if (!this.isLocalStorageAvailable()) {
       return;
@@ -30,8 +28,6 @@ export class TokenStorageService {
     localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     localStorage.setItem(this.TOKEN_EXPIRES_KEY, expiresAt.toString());
   }
-
-  // Get access token
   getAccessToken(): string | null {
     if (!this.isLocalStorageAvailable()) {
       return null;
@@ -39,8 +35,6 @@ export class TokenStorageService {
     
     return localStorage.getItem(this.ACCESS_TOKEN_KEY);
   }
-
-  // Get refresh token
   getRefreshToken(): string | null {
     if (!this.isLocalStorageAvailable()) {
       return null;
@@ -48,8 +42,6 @@ export class TokenStorageService {
     
     return localStorage.getItem(this.REFRESH_TOKEN_KEY);
   }
-
-  // Get user data
   getUser(): any | null {
     if (!this.isLocalStorageAvailable()) {
       return null;
@@ -58,8 +50,6 @@ export class TokenStorageService {
     const userData = localStorage.getItem(this.USER_KEY);
     return userData ? JSON.parse(userData) : null;
   }
-
-  // Store user data
   setUser(user: any): void {
     if (!this.isLocalStorageAvailable()) {
       return;
@@ -67,8 +57,6 @@ export class TokenStorageService {
     
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
   }
-
-  // Check if access token is expired
   isAccessTokenExpired(): boolean {
     if (!this.isLocalStorageAvailable()) {
       return true;
@@ -81,17 +69,12 @@ export class TokenStorageService {
 
     const currentTime = Date.now();
     const tokenExpiryTime = parseInt(expiresAt, 10);
-    
-    // Add 30 second buffer
+  
     return (tokenExpiryTime - 30000) < currentTime;
   }
-
-  // Check if tokens exist
   hasTokens(): boolean {
     return !!(this.getAccessToken() && this.getRefreshToken());
   }
-
-  // Clear all stored tokens and user data
   clearTokens(): void {
     if (!this.isLocalStorageAvailable()) {
       return;
@@ -102,8 +85,6 @@ export class TokenStorageService {
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.TOKEN_EXPIRES_KEY);
   }
-
-  // Get all token information
   getTokenInfo(): TokenInfo | null {
     const accessToken = this.getAccessToken();
     const refreshToken = this.getRefreshToken();
@@ -122,19 +103,14 @@ export class TokenStorageService {
       user
     };
   }
-
-  // Update only access token (for refresh scenarios)
   updateAccessToken(accessToken: string, expiresIn: string = '15m'): void {
     if (!this.isLocalStorageAvailable()) {
       return;
     }
-
     const expiresAt = this.calculateExpiryTime(expiresIn);
     localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
     localStorage.setItem(this.TOKEN_EXPIRES_KEY, expiresAt.toString());
   }
-
-  // Decode JWT token payload (client-side only for expiry checking)
   decodeToken(token: string): any {
     try {
       const base64Url = token.split('.')[1];
@@ -150,11 +126,9 @@ export class TokenStorageService {
       return null;
     }
   }
-
-  // Get token expiry time from token payload
   getTokenExpiryFromToken(token: string): number | null {
     const payload = this.decodeToken(token);
-    return payload?.exp ? payload.exp * 1000 : null; // Convert to milliseconds
+    return payload?.exp ? payload.exp * 1000 : null;
   }
 
   private isLocalStorageAvailable(): boolean {
@@ -162,7 +136,6 @@ export class TokenStorageService {
       if (typeof window === 'undefined' || !window.localStorage) {
         return false;
       }
-      // Test localStorage functionality
       const testKey = '__test_storage__';
       localStorage.setItem(testKey, 'test');
       localStorage.removeItem(testKey);
@@ -174,8 +147,6 @@ export class TokenStorageService {
 
   private calculateExpiryTime(expiresIn: string): number {
     const currentTime = Date.now();
-    
-    // Parse expiry string (e.g., "15m", "1h", "7d")
     const timeValue = parseInt(expiresIn);
     const timeUnit = expiresIn.replace(timeValue.toString(), '');
     
@@ -195,10 +166,8 @@ export class TokenStorageService {
         milliseconds = timeValue * 24 * 60 * 60 * 1000;
         break;
       default:
-        // Default to minutes if no unit specified
         milliseconds = timeValue * 60 * 1000;
     }
-    
     return currentTime + milliseconds;
   }
 }

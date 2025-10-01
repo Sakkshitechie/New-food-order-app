@@ -20,10 +20,8 @@ const validateUserRegistration = [
   body('name')
     .trim()
     .notEmpty()
-    .withMessage('Name is required')
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Name must be between 2 and 50 characters'),
-  
+    .withMessage('Name is required'),
+    
   body('email')
     .trim()
     .notEmpty()
@@ -158,7 +156,7 @@ router.get('/:id', validateMongoId, async (req, res) => {
   }
 });
 
-router.post('/register', validateUserRegistration, async (req, res) => {
+router.post('/register', authenticateToken , validateUserRegistration, async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
 
@@ -170,7 +168,6 @@ router.post('/register', validateUserRegistration, async (req, res) => {
       });
     }
     
-    // Check if phone number already exists
     const existingPhoneUser = await User.findOne({ phone: phone });
     if (existingPhoneUser) {
       return res.status(409).json({ 
@@ -207,7 +204,7 @@ router.post('/register', validateUserRegistration, async (req, res) => {
   }
 });
 
-router.post('/', validateUserRegistration, async (req, res) => {
+router.post('/', authenticateToken , validateUserRegistration, async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
 
@@ -260,12 +257,11 @@ router.post('/', validateUserRegistration, async (req, res) => {
   }
 });
 
-router.post('/login', validateUserLogin, async (req, res) => {
+router.post('/login', authenticateToken , validateUserLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log('Login attempt for:', email);
-    
-    // Check if user exists first
+  
     const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
     console.log('User exists in database:', !!existingUser);
     
@@ -279,9 +275,6 @@ router.post('/login', validateUserLogin, async (req, res) => {
 
     try {
       const user = await User.findByCredentials(email, password);
-      console.log('User authenticated successfully:', user.email);
-      
-      // Generate JWT tokens
       const accessToken = generateToken(user);
       const refreshToken = generateRefreshToken(user);
       
@@ -305,12 +298,8 @@ router.post('/login', validateUserLogin, async (req, res) => {
         accessTokenKey: Object.keys(response).find(key => key.includes('Token') || key.includes('token')),
         allKeys: Object.keys(response)
       });
-      
-      console.log('Full response object:', JSON.stringify(response, null, 2));
-      
       res.json(response);
     } catch (authError) {
-      console.log('Authentication error:', authError.message);
       return res.status(401).json({ 
         message: 'Invalid email or password', 
         success: false 
@@ -318,7 +307,6 @@ router.post('/login', validateUserLogin, async (req, res) => {
     }
     
   } catch (error) {
-    console.error('Server error during login:', error);
     res.status(500).json({ 
       message: 'An error occurred during login. Please try again.', 
       success: false 

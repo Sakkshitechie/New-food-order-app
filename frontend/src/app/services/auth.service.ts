@@ -12,10 +12,8 @@ export class AuthService {
   public currentUser$!: Observable<User | null>;
 
   constructor(private http: HttpClient) {
-    // Initialize with null first to avoid issues during getCurrentUserFromStorage
     this.currentUserSubject = new BehaviorSubject<User | null>(null);
     this.currentUser$ = this.currentUserSubject.asObservable();
-    // Load user from storage after initialization
     const storedUser = this.getCurrentUserFromStorage();
     if (storedUser) {
         this.currentUserSubject.next(storedUser);
@@ -29,8 +27,6 @@ export class AuthService {
       const userData = localStorage.getItem('currentUser');
       const token = localStorage.getItem('accessToken');
       if (userData && token) {
-        try {
-          // Check token expiry manually during initialization
           const payload = JSON.parse(atob(token.split('.')[1]));
           const currentTime = Math.floor(Date.now() / 1000);
           const isExpired = payload.exp < currentTime;
@@ -41,9 +37,6 @@ export class AuthService {
             }
             return user;
           }
-        } catch (error) {
-          // Token is invalid, just return null
-        }
       }
     }
     return null;
@@ -69,13 +62,11 @@ export class AuthService {
       return false;
     }
     try {
-      // Parse JWT token
       const parts = token.split('.');
       if (parts.length !== 3) {
         return false;
       }
       const payload = JSON.parse(atob(parts[1]));
-      // If no exp field, assume token is valid (shouldn't happen with proper JWT)
       if (!payload.exp) {
         return true;
       }
@@ -87,18 +78,14 @@ export class AuthService {
     }
   }
 
-  // Login with JWT token handling
   login(email: string, password: string): Observable<any> {
     const credentials = { email, password };
     return this.http.post(`${this.apiUrl}/login`, credentials);
   }
-
-  // Set user data and tokens after successful login
   setCurrentUser(user: User, accessToken: string, refreshToken?: string): void {
     if (!user || !accessToken) {
       return;
     }
-    // Always ensure user has an id field for persistence
     let userToStore = { ...user };
     if (!userToStore.id && userToStore._id) {
       userToStore.id = userToStore._id;
@@ -113,17 +100,14 @@ export class AuthService {
     }
   }
 
-  // Register new user
   register(user: User): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, user);
   }
 
-  // Logout with token cleanup
   logout(): Observable<any> {
     return this.http.post(`${this.apiUrl}/logout`, {}, { headers: this.getAuthHeaders() });
   }
 
-  // Clear user data and tokens after logout
   clearCurrentUser(): void {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('accessToken');
@@ -133,23 +117,18 @@ export class AuthService {
     }
   }
 
-  // Get access token
   getAccessToken(): string | null {
     if (typeof window !== 'undefined' && window.localStorage) {
       return localStorage.getItem('accessToken');
     }
     return null;
   }
-
-  // Get refresh token
   getRefreshToken(): string | null {
     if (typeof window !== 'undefined' && window.localStorage) {
       return localStorage.getItem('refreshToken');
     }
     return null;
   }
-
-  // Get authorization headers
   getAuthHeaders(): HttpHeaders {
     const token = this.getAccessToken();
     if (token) {
@@ -162,8 +141,6 @@ export class AuthService {
       'Content-Type': 'application/json'
     });
   }
-
-  // Check if token is expired
   isTokenExpired(token: string): boolean {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -173,33 +150,22 @@ export class AuthService {
       return true;
     }
   }
-
-  // Handle authentication errors
   handleAuthError(): void {
     this.clearCurrentUser();
   }
 
-  // Update profile with authentication
   updateProfile(userId: string | number, userData: Partial<User>): Observable<any> {
     return this.http.put(`${this.apiUrl}/${userId}`, userData, { headers: this.getAuthHeaders() });
   }
-
-  // Get user by ID with authentication
   getUserById(id: string | number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
-
-  // Get current user with authentication
   getCurrentUser(): Observable<any> {
     return this.http.get(`${this.apiUrl}/me`, { headers: this.getAuthHeaders() });
   }
-
-  // Get all users with authentication
   getAllUsers(): Observable<any> {
     return this.http.get(`${this.apiUrl}`, { headers: this.getAuthHeaders() });
   }
-
-  // Delete user with authentication
   deleteUser(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
