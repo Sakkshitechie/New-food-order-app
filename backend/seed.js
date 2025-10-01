@@ -14,7 +14,7 @@ const items = [
       "name": "Margherita Pizza",
       "description": "Classic pizza with tomato sauce, mozzarella cheese, and fresh basil.",
       "price": 3.56,
-      "image": "assets/images/margherita-pizza.jpg"
+      "image": "margherita-pizza.jpg"
     }
   ];
 
@@ -37,7 +37,7 @@ const orders = [
         name: 'Margherita Pizza',
         description: 'Classic pizza with tomato sauce, mozzarella cheese, and fresh basil.',
         price: 8.99,
-        image: 'assets/images/margherita-pizza.jpg',
+        image: 'margherita-pizza.jpg',
         quantity: 2
       }
     ],

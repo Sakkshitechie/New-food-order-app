@@ -23,7 +23,7 @@
     <tbody>
       <tr *ngFor="let item of cartItems">
         <td>
-          <img [src]="item.image" alt="{{ item.name }}" width="80">
+          <img [src]="'http://localhost:3000/uploads/' + item.image" alt="{{ item.name }}" width="80">
         </td>
         <td>{{ item.name }}</td>
         <td>${{ getFormattedPrice(item.price) }}</td>
@@ -71,7 +71,7 @@
         <td>{{ userPhone }}</td>
       </tr>
       <tr>
-        <td>Delivery Address:</td>
+        <td>Delivery Address: <span style="color: red;">*</span></td>
         <td>
           <textarea [(ngModel)]="userAddress" name="address" rows="3" placeholder="Enter your delivery address" required></textarea>
         </td>

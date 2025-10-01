@@ -24,7 +24,6 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/health', (req, res) => {
     res.json({
         status: 'healthy',
@@ -37,6 +36,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/items', foodRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/uploads', require('express').static(path.join(__dirname, 'uploads')));
 
 app.use('*', (req, res) => {
     res.status(404).json({

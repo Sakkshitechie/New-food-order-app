@@ -87,13 +87,10 @@ const generateToken = (user) => {
     type: 'access',
     iat: Math.floor(Date.now() / 1000),
   };
-
   const jwtSecret = process.env.JWT_SECRET;
-  
   if (!jwtSecret) {
     throw new Error('JWT_SECRET not configured');
   }
-
   return jwt.sign(
     payload,
     jwtSecret,
@@ -129,8 +126,6 @@ const generateRefreshToken = (user) => {
     }
   );
 };
-
-// Utility function to decode token payload without verification (for client-side use)
 const decodeTokenPayload = (token) => {
   try {
     const base64Url = token.split('.')[1];
@@ -138,20 +133,17 @@ const decodeTokenPayload = (token) => {
     const jsonPayload = decodeURIComponent(Buffer.from(base64, 'base64').toString().split('').map(function(c) {
       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
-
     return JSON.parse(jsonPayload);
   } catch (error) {
     return null;
   }
 };
 
-// Check if token is expired
 const isTokenExpired = (token) => {
   const payload = decodeTokenPayload(token);
   if (!payload || !payload.exp) {
     return true;
   }
-  
   const currentTime = Math.floor(Date.now() / 1000);
   return payload.exp < currentTime;
 };

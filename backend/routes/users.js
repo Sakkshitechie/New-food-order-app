@@ -156,7 +156,7 @@ router.get('/:id', validateMongoId, async (req, res) => {
   }
 });
 
-router.post('/register', authenticateToken , validateUserRegistration, async (req, res) => {
+router.post('/register', validateUserRegistration, async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
 
@@ -257,7 +257,7 @@ router.post('/', authenticateToken , validateUserRegistration, async (req, res) 
   }
 });
 
-router.post('/login', authenticateToken , validateUserLogin, async (req, res) => {
+router.post('/login', validateUserLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log('Login attempt for:', email);

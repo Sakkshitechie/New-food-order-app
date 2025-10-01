@@ -9,7 +9,7 @@
           </div>
           <form [formGroup]="form" (ngSubmit)="onRegister()" class="row g-3 mt-3">
             <div class="col-md-6">
-              <label class="form-label" for="name">Name</label>
+              <label class="form-label" for="name">Name<span style="color: red;">*</span></label>
               <input class="form-control" id="name" type="text" formControlName="name" placeholder="Enter name.." pattern="[A-Za-z\s]+" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
               <div *ngIf="form.get('name')?.invalid && form.get('name')?.dirty">
                 <div class="invalid-feedback d-block" *ngIf="form.get('name')?.errors?.['required']">
@@ -21,7 +21,7 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label" for="email">Email</label>
+              <label class="form-label" for="email">Email<span style="color: red;">*</span></label>
               <input type="email" id="email" class="form-control" formControlName="email" placeholder="you@example.com">
               <div *ngIf="form.get('email')?.invalid && form.get('email')?.dirty">
                 <div class="invalid-feedback d-block" *ngIf="form.get('email')?.errors?.['required']">
@@ -33,7 +33,7 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label" for="phone">Phone</label>
+              <label class="form-label" for="phone">Phone<span style="color: red;">*</span></label>
               <input class="form-control" id="phone" type="number" maxlength="10" formControlName="phone" placeholder="9xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10)">
               <div *ngIf="form.get('phone')?.invalid && form.get('phone')?.dirty">
                 <div class="invalid-feedback d-block" *ngIf="form.get('phone')?.errors?.['required']">
@@ -45,7 +45,7 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label" for="password">Password</label>
+              <label class="form-label" for="password">Password<span style="color: red;">*</span></label>
               <input type="password" id="password" class="form-control" formControlName="password" placeholder="Enter password">
               <div *ngIf="form.get('password')?.invalid && form.get('password')?.dirty">
                 <div class="invalid-feedback d-block" *ngIf="form.get('password')?.errors?.['required']">
@@ -57,7 +57,7 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label" for="confirmPassword">Confirm Password</label>
+              <label class="form-label" for="confirmPassword">Confirm Password<span style="color: red;">*</span></label>
               <input class="form-control" id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Enter confirm password">
               <div *ngIf="form.get('confirmPassword')?.invalid && form.get('confirmPassword')?.dirty">
                 <div class="invalid-feedback d-block" *ngIf="form.get('confirmPassword')?.errors?.['required']">
