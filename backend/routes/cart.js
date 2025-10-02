@@ -6,7 +6,6 @@ const router = express.Router();
 
 router.get('/:userId', authenticateToken, async (req, res) => {
   try {
-    // Always use authenticated user's ID from token
     const userId = req.user._id;
     const cartItems = await CartItem.find({ userId });
     const transformedItems = cartItems.map(item => ({
@@ -25,7 +24,6 @@ router.get('/:userId', authenticateToken, async (req, res) => {
 
 router.post('/:userId/add', authenticateToken, async (req, res) => {
   try {
-    // Always use authenticated user's ID from token
     const userId = req.user._id;
     const { id, name, price, image } = req.body;
     let cartItem = await CartItem.findOne({ userId, foodItemId: id });

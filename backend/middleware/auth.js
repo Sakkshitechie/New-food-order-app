@@ -13,14 +13,14 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      return res.status(500).json({
+        success: false,
+        message: 'Server configuration error'
+      });
+    }
     try {
-      const jwtSecret = process.env.JWT_SECRET;
-      if (!jwtSecret) {
-        return res.status(500).json({
-          success: false,
-          message: 'Server configuration error'
-        });
-      }
       const decoded = jwt.verify(token, jwtSecret);
       const user = await User.findById(decoded.userId).select('-password');
       if (!user) {
@@ -32,19 +32,10 @@ const authenticateToken = async (req, res, next) => {
       req.user = user;
       next();
     } catch (jwtError) {
-      if (jwtError.name === 'JsonWebTokenError') {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid token'
-        });
-      } else if (jwtError.name === 'TokenExpiredError') {
-        return res.status(401).json({
-          success: false,
-          message: 'Token has expired'
-        });
-      } else {
-        throw jwtError;
-      }
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired token'
+      });
     }
   } catch (error) {
     res.status(500).json({

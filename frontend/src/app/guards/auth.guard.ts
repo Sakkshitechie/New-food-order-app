@@ -19,19 +19,14 @@ export class AuthGuard implements CanActivate {
     
     const isLoggedIn = this.authService.isLoggedIn;
     const isAuthenticated = this.authService.isAuthenticated;
-    
-    
-    // Check if user is logged in and token is valid
     if (isLoggedIn && isAuthenticated) {
       return true;
     }
-
-    // If logged in but not authenticated (e.g., expired token), clear auth data
     if (isLoggedIn && !isAuthenticated) {
       this.authService.handleAuthError();
     }
 
-    // If not authenticated, redirect to login
+    //If not authenticated, redirect to login
     this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
     
     return false;
