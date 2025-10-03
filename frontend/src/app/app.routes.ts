@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './guards/auth.guard';
 import { Home } from './pages/home/home';
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
@@ -13,8 +14,8 @@ export const routes: Routes = [
   { path: 'register', component: Register },
   { path: 'profile', component: Profile },
   { path: 'menu', component: MenuCards },
-  { path: 'order', component: Order },
-  { path: 'order/:orderId', component: Order },
+  { path: 'order', component: Order, canActivate: [AuthGuard] },
+  { path: 'order/:orderId', component: Order, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup, ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule, ViewportScroller } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { firstValueFrom } from 'rxjs';
@@ -19,7 +19,7 @@ export class Login implements OnInit{
   messageType: string = '';
   isLoading:boolean=false;
 
-  constructor(private authService: AuthService, private router: Router, private viewportScroller: ViewportScroller) {
+  constructor(private authService: AuthService, private router: Router, private viewportScroller: ViewportScroller, private route: ActivatedRoute) {
     this.form = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required, Validators.minLength(6)])
@@ -27,6 +27,12 @@ export class Login implements OnInit{
   }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['authError']) {
+        this.message = params['authError'];
+        this.messageType = 'error';
+      }
+    });
     setTimeout(() => {
       const element = document.getElementById('login-card');
       if (element) {

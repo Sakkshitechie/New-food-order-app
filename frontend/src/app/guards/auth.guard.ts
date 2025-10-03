@@ -26,9 +26,8 @@ export class AuthGuard implements CanActivate {
       this.authService.handleAuthError();
     }
 
-    //If not authenticated, redirect to login
-    this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+  this.router.navigate(['/login'], { queryParams: { returnUrl: state.url, authError: 'Access denied. Please log in to continue.' } });
     
-    return false;
+  return false;
   }
 }
