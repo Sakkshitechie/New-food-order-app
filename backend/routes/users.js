@@ -207,7 +207,6 @@ router.post('/register', validateUserRegistration, async (req, res) => {
 router.post('/', authenticateToken , validateUserRegistration, async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
-
     const existingEmailUser = await User.findOne({ email });
     if (existingEmailUser) {
       return res.status(409).json({ 
@@ -260,13 +259,9 @@ router.post('/', authenticateToken , validateUserRegistration, async (req, res) 
 router.post('/login', validateUserLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('Login attempt for:', email);
-  
     const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
-    console.log('User exists in database:', !!existingUser);
     
     if (!existingUser) {
-      console.log('No user found with email:', email);
       return res.status(401).json({ 
         message: 'Invalid email or password', 
         success: false 
@@ -314,7 +309,7 @@ router.post('/login', validateUserLogin, async (req, res) => {
   }
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout', (res) => {
   try {
     res.json({ message: 'Logged out successfully', success: true });
   } catch (error) {
@@ -324,7 +319,7 @@ router.post('/logout', (req, res) => {
 
 router.put('/:id', authenticateToken, validateUserUpdate, async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
+    const { email, phone } = req.body;
     const userId = req.params.id;
     
     if (email) {
@@ -363,7 +358,6 @@ router.put('/:id', authenticateToken, validateUserUpdate, async (req, res) => {
     
     if (!user) {
       return res.status(404).json({ message: 'User not found', success: false });
-    res.json({ user: user.toJSON(), success: true, message: 'Profile updated successfully' });
   } }
     catch (error) {
     if (error.name === 'ValidationError') {
@@ -377,8 +371,6 @@ router.put('/:id', authenticateToken, validateUserUpdate, async (req, res) => {
         message: 'This email address is already registered by another user. Please use a different email.',
         success: false
       });
-    
-    res.status(500).json({ message: 'Server error occurred while updating profile', success: false });
   }
 }});
 

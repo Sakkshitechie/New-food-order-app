@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -9,17 +10,16 @@ import { CommonModule } from '@angular/common';
   styleUrl: './header.css'
 })
 export class Header implements OnInit {
-  
-  constructor() {}
+  constructor(public authService: AuthService) {}
 
   ngOnInit(): void {
   }
 
   get welcomeMessage(): string {
-    return 'Food Express'; // Static message since no auth state management
+    return 'Food Express';
   }
 
   get isLoggedIn(): boolean {
-    return false; // Static since no auth state management
+    return this.authService.isLoggedIn;
   }
 }
