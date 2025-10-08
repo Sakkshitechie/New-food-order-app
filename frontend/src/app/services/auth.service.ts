@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { User } from '../Models/User';
 
 @Injectable({
@@ -153,10 +153,6 @@ export class AuthService {
   handleAuthError(): void {
     this.clearCurrentUser();
   }
-
-  updateProfile(userId: string | number, userData: Partial<User>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${userId}`, userData, { headers: this.getAuthHeaders() });
-  }
   getUserById(id: string | number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
@@ -168,5 +164,8 @@ export class AuthService {
   }
   deleteUser(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
+  }
+  updateProfile(profileData: any): Observable<any> {
+    return this.http.put<{ user: User }>(`${this.apiUrl}/profile`,profileData,{ headers: this.getAuthHeaders() });
   }
 }

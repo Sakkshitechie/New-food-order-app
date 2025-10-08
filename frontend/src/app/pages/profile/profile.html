@@ -8,8 +8,8 @@
         </div>
         <h3>Your Profile</h3>
 
-        <div *ngIf="statusMessage" [ngClass]="statusType" class="alert my-2">
-          {{ statusMessage }}
+        <div *ngIf="statusMessage" [ngClass]="{'alert': true,'alert-success': statusType === 'success','alert-danger': statusType === 'error','my-2': true}">
+          {{statusMessage}}
         </div>
 
         <div class="profile-info">

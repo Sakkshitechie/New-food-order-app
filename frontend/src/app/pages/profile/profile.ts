@@ -46,56 +46,38 @@ export class Profile implements OnInit {
   }
 
   save(): void {
-    if (!this.isValidUser(this.user) || !this.validateUserData()) {
-      return;
-    }
-
+    if (!this.user || !this.validateUserData()) return;
     this.isLoading = true;
-    
-    this.authService.updateProfile(this.user.id, {
-      name: this.user.name,
-      email: this.user.email,
-      phone: this.user.phone
-    }).subscribe({
+
+    this.authService.updateProfile(
+      {
+        name: this.user?.name,
+        email: this.user?.email,
+        phone: this.user?.phone
+      }
+    ).subscribe({
       next: (response) => {
         this.edit = false;
         this.statusMessage = 'Profile updated successfully';
         this.statusType = 'success';
         this.isLoading = false;
-        
+
         if (response?.user) {
-          const currentToken = this.authService.getAccessToken();
-          const currentRefreshToken = this.authService.getRefreshToken();
-          if (currentToken) {
-            this.authService.setCurrentUser(response.user, currentToken, currentRefreshToken || undefined);
-          }
           this.user = { ...response.user };
           this.originalUser = { ...response.user };
+          this.authService.setCurrentUser(response.user, this.authService.getAccessToken() || '');
         }
       },
       error: (error) => {
         this.isLoading = false;
         this.statusType = 'error';
-        
-        if (error.status === 409 || error.error?.message?.toLowerCase().includes('already registered')) {
-          const errorMsg = error.error?.message || '';
-          
-          if (errorMsg.toLowerCase().includes('email')) {
-            this.statusMessage = 'This email is already registered. Please use a different email.';
-            if (this.originalUser?.email) this.user!.email = this.originalUser.email;
-          } else if (errorMsg.toLowerCase().includes('phone')) {
-            this.statusMessage = 'This phone number is already registered. Please use a different phone number.';
-            if (this.originalUser?.phone) this.user!.phone = this.originalUser.phone;
-          } else {
-            this.statusMessage = 'Email or phone number already registered by another user.';
-            if (this.originalUser?.email) this.user!.email = this.originalUser.email;
-            if (this.originalUser?.phone) this.user!.phone = this.originalUser.phone;
-          }
+        if (error?.error?.message) {
+          this.statusMessage = error.error.message;
         } else {
           this.statusMessage = 'Failed to update profile. Please try again.';
-          if (this.originalUser) {
-            this.user = { ...this.originalUser };
-          }
+        }
+        if (this.originalUser) {
+          this.user = { ...this.originalUser };
         }
       }
     });
@@ -153,35 +135,16 @@ export class Profile implements OnInit {
       this.setError('User data is missing');
       return false;
     }
-
-    if (!this.user.name?.trim()) {
-      this.setError('Name is required');
-      return false;
-    }
-
-    if (!this.user.email?.trim()) {
-      this.setError('Email is required');
-      return false;
-    }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.user.email)) {
       this.setError('Please enter a valid email address');
       return false;
     }
-
-    if (!this.user.phone) {
-      this.setError('Phone number is required');
-      return false;
-    }
-
     const phoneRegex = /^[6-9]{1}\d{9}$/;
-    const phoneStr = this.user.phone.toString().trim();
-    if (!phoneRegex.test(phoneStr)) {
+    if (!phoneRegex.test(this.user.phone?.toString() || '')) {
       this.setError('Phone number must be 10 digits and start with 6, 7, 8, or 9');
       return false;
     }
-
     return true;
   }
 

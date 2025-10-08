@@ -1,3 +1,20 @@
 footer { 
     background-color: #a7c0be;
 }
+.navbar-footer {
+  width: 100%;
+  margin-top: 2rem;
+}
+.nav-links-center {
+  display: flex;
+  justify-content: center;
+  gap: 0.2rem;
+}
+.nav-links-center a {
+  color: #fff !important;
+  text-decoration: none;
+}
+
+.nav-links-center a:hover {
+  text-decoration: underline;
+}

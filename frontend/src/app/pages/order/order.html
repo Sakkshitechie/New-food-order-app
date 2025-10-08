@@ -57,7 +57,7 @@
 <div *ngIf="showAddressForm && !showPaymentSuccess" class="order-details">
   <h3>Delivery Details</h3>
   <form class="order-form" (ngSubmit)="submitAddress()">
-    <table>
+    <table #deliveryDetailsTable>
       <tr>
         <td>Name:</td>
         <td>{{ userName }}</td>

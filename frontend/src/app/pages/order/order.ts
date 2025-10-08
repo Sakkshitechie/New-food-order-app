@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
 import { CartService } from '../../services/cart.service';
@@ -27,6 +27,7 @@ export class Order implements OnInit {
   paymentSuccessMessage: string = '';
   showPaymentSuccess: boolean = false;
   currentUserId: string | number | null = null;
+  @ViewChild('deliveryDetailsTable') deliveryDetailsTable!: ElementRef;
 
   constructor(
     private authService: AuthService,
@@ -118,11 +119,12 @@ export class Order implements OnInit {
   }
 
   proceedToAddress() {
-    if (!this.userAddress || this.userAddress.trim().length === 0) {
-      this.showAddressForm = true;
-    } else {
-      this.showPaymentForm = true;
-    }
+    this.showAddressForm = true;
+    setTimeout(() => {
+      if (this.deliveryDetailsTable?.nativeElement) {
+        this.deliveryDetailsTable.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   }
 
   submitAddress() {
@@ -133,6 +135,11 @@ export class Order implements OnInit {
     this.addressError = false;
     this.showAddressForm = false;
     this.showPaymentForm = true;
+    setTimeout(() => {
+      if (this.deliveryDetailsTable?.nativeElement) {
+        this.deliveryDetailsTable.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   }
 
   onPaymentComplete(paymentMethod: string) {

@@ -9,9 +9,4 @@ import { RouterLink } from '@angular/router';
   styleUrl: './footer.css'
 })
 export class Footer {
-footerLinks = [
-{ label: 'Home', url: '/' },
-{ label: 'About', url: '/menu' },
-{ label: 'Contact', url: '/contact' }
-];
 }

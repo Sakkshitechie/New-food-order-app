@@ -1,16 +1,10 @@
-<footer class="text-dark py-3 mt-5">
-<div class="container">
-<div class="row">
-    <div class="col-md-6 text-center">
-    <p>&copy; 2025 Food express. All rights reserved.</p>
-    </div>
-<div class="col-md-6">
-<ul class="list-unstyled" style="display: flex; gap: 10px; align-items: center;">
-<li *ngFor="let link of footerLinks">
-<a [routerLink]="link.url" class="text-dark">{{ link.label }}</a>
-</li>
-</ul>
-</div>
-</div>
-</div>
+<footer class="navbar-footer">
+  <div class="text-center py-2">
+    &copy; 2025 Food Express. All rights reserved.
+  </div>
+  <div class="nav-links-center text-center py-2">
+    <a routerLink="/" class="mx-2">Home</a>
+    <a routerLink="/about" class="mx-2">About</a>
+    <a routerLink="/contact" class="mx-2">Contact</a>
+  </div>
 </footer>
