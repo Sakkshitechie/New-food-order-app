@@ -6,21 +6,24 @@ import { FoodService } from '../../services/food.service';
 import { CartService } from '../../services/cart.service'; 
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { FilterPipe } from "../../pipes/filter.pipe";
 
 @Component({
   selector: 'app-menu-cards',
-  imports: [CommonModule],
+  imports: [CommonModule, FilterPipe],
   templateUrl: './menu-cards.html',
   styleUrl: './menu-cards.css'
 })
 export class MenuCards implements OnInit, AfterViewInit {
   @Input() items: FoodItem[] = [];
+  @Input() searchTerm: string = ''; 
   foodItems: FoodItem[] = [];
   cartItems: CartItem[] = [];
   showViewCart: boolean = false;
   private currentUserId: number | string | null = null;
   isLoggedIn: boolean = false;
   bootstrap: any;
+  errorMessage: string = '';
 
   constructor(
     private foodService: FoodService,
@@ -31,6 +34,7 @@ export class MenuCards implements OnInit, AfterViewInit {
 
   addToCart(food: FoodItem) {
     if (!this.isLoggedIn || !this.currentUserId) {
+      this.errorMessage = 'You must be logged in to add items to the cart.';
       this.router.navigate(['/login']);
       return;
     }
@@ -43,12 +47,16 @@ export class MenuCards implements OnInit, AfterViewInit {
     };
     this.cartService.addToCart(userId, cartData).subscribe({
       next: () => {
+        this.errorMessage = ''; 
         this.loadCartItems();
       },
       error: (error) => {
-        if (error.status === 401) {
+         if (error.status === 401) {
+          this.errorMessage = 'Session expired or unauthorized. Please log in again.';
           this.authService.handleAuthError();
           this.router.navigate(['/login']);
+        } else {
+          this.errorMessage = 'Failed to add item to cart. Please try again.';
         }
       }
     });

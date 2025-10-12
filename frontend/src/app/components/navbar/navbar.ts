@@ -2,14 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterModule, Router } from '@angular/router';
+import { RouterLink, RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel
 import { User } from '../../Models/User';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule,RouterLink,RouterModule],
+  imports: [CommonModule, RouterLink, RouterModule, FormsModule], // Add FormsModule here
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
@@ -17,7 +18,7 @@ export class Navbar implements OnInit {
   isOpen = false;
   currentUser: User | null = null;
   cartItemCount: number = 0;
-  
+
   constructor(
     private authService: AuthService, 
     private cartService: CartService,

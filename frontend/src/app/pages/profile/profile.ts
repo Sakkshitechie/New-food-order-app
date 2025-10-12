@@ -65,7 +65,7 @@ export class Profile implements OnInit {
         if (response?.user) {
           this.user = { ...response.user };
           this.originalUser = { ...response.user };
-          this.authService.setCurrentUser(response.user, this.authService.getAccessToken() || '');
+          this.authService.currentUserSubject.next(response.user);
         }
       },
       error: (error) => {
@@ -179,4 +179,43 @@ export class Profile implements OnInit {
   getFormattedItemTotal(price: number, quantity: number): string {
     return (price * quantity).toFixed(2);
   }
+  cancelOrder(orderId: number): void {
+  this.isLoading = true;
+
+  this.orderService.cancelOrder(orderId).subscribe({
+    next: () => {
+      this.orders = this.orders.map(order =>
+        order.id === orderId && order.status === 'Paid'
+          ? { ...order, status: 'Cancelled' }
+          : order
+      );
+      this.statusMessage = 'Order cancelled successfully';
+      this.statusType = 'success';
+      this.isLoading = false;
+    },
+    error: () => {
+      this.statusMessage = 'Failed to cancel order. Please try again.';
+      this.statusType = 'error';
+      this.isLoading = false;
+    }
+  });
+}
+
+deleteOrder(orderId: number): void {
+  this.isLoading = true;
+
+  this.orderService.deleteOrder(orderId).subscribe({
+    next: () => {
+      this.orders = this.orders.filter(order => order.id !== orderId);
+      this.statusMessage = 'Order removed successfully';
+      this.statusType = 'success';
+      this.isLoading = false;
+    },
+    error: () => {
+      this.statusMessage = 'Failed to remove order. Please try again.';
+      this.statusType = 'error';
+      this.isLoading = false;
+    }
+  });
+}
 }

@@ -1,5 +1,6 @@
 <div class="container py-4" *ngIf="!showPaymentSuccess">
   <div *ngIf="cartItems.length === 0 && !showPaymentSuccess" class="empty-cart">
+    <img src="http://localhost:3000/uploads/empty-cart.png" alt="empty cart" class="img-fluid" style="max-width: 300px;">
     <h3>Your cart is empty</h3>
     <p>Add some delicious food items to get started!</p>
     <a routerLink="/" class="btn btn-warning">Browse Menu</a>
@@ -26,7 +27,7 @@
           <img [src]="'http://localhost:3000/uploads/' + item.image" alt="{{ item.name }}" width="80">
         </td>
         <td>{{ item.name }}</td>
-        <td>${{ getFormattedPrice(item.price) }}</td>
+        <td>₹{{ getFormattedPrice(item.price) }}</td>
         <td>
           <div class="quantity-controls">
             <button (click)="changeQty(item.id, -1)">-</button>
@@ -35,7 +36,7 @@
           </div>
         </td>
         <td class="item-total">
-          <strong>${{ getFormattedItemTotal(item.price, item.quantity) }}</strong>
+          <strong>₹{{ getFormattedItemTotal(item.price, item.quantity) }}</strong>
         </td>
         <td>
           <div class="action-buttons">
@@ -48,7 +49,7 @@
   </div>
   <div *ngIf="cartItems.length > 0 && !showPaymentSuccess" class="cart-total">
     <div class="total-amount">
-      <strong>Total: ${{ getFormattedTotalPrice() }}</strong>
+      <strong>Total: ₹{{ getFormattedTotalPrice() }}</strong>
     </div>
     <button *ngIf="!showAddressForm" class="proceed-btn" (click)="proceedToAddress()">Proceed to Checkout</button>
   </div>

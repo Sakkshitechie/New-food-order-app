@@ -56,10 +56,8 @@ export class Login implements OnInit{
     
     try {
       const response = await firstValueFrom(this.authService.login(formValue.email, formValue.password));
-      //Handle both 'token' and 'accessToken' field names
-      const accessToken = response.accessToken || response.token;
-      if (response && response.user && accessToken) {
-        this.authService.setCurrentUser(response.user, accessToken, response.refreshToken);
+      if (response && response.user) {
+        this.authService.currentUserSubject.next(response.user);
         this.router.navigate(['/']);
       } else {
         this.message = 'Login failed. Please try again.';

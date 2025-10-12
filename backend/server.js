@@ -3,6 +3,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
+const cookieParser = require('cookie-parser');
+
 
 const userRoutes = require('./routes/users');
 const foodRoutes = require('./routes/items');
@@ -14,17 +16,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/foodorderingapp';
-
+app.use(cookieParser());
 app.use(cors({
     origin: 'http://localhost:4200',
-    credentials: false,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+}));
+
+app.options('*',cors({
+    origin: 'http://localhost:4200',
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    
 }));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.get('/health', (req, res) => {
+app.get('/health', (res) => {
     res.json({
         status: 'healthy',
         timestamp: new Date(),
@@ -45,7 +53,7 @@ app.use('*', (req, res) => {
     });
 });
 
-app.use((err, req, res, next) => {
+app.use((err, res) => {
     const isDevelopment = process.env.NODE_ENV === 'development';
     const errorResponse = {
         success: false,

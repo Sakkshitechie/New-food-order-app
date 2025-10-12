@@ -51,7 +51,7 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authenticateToken, async (req, res) => {
   try {
     const { status } = req.body;
     let order = await Order.findOneAndUpdate(
@@ -85,6 +85,31 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
     res.json({ message: 'Order deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Cancel Order API
+router.put('/:id/cancel', authenticateToken, async (req, res) => {
+  try {
+    const orderId = req.params.id;
+
+    // Find the order by `id` or `_id` and ensure it is in 'Paid' status
+    let order = await Order.findOne({ id: orderId, status: 'Paid' });
+    if (!order) {
+      order = await Order.findOne({ _id: orderId, status: 'Paid' });
+    }
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found or cannot be cancelled' });
+    }
+
+    // Update the order status to 'Cancelled'
+    order.status = 'Cancelled';
+    await order.save();
+
+    res.status(200).json({ message: 'Order cancelled successfully', order });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

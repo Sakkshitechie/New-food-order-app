@@ -3,52 +3,30 @@ const User = require('../models/User');
 
 const authenticateToken = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1]; //Bearer TOKEN
-
+    let token = req.cookies && req.cookies.accessToken;
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access token is required'
-      });
+      const authHeader = req.headers.authorization;
+      token = authHeader && authHeader.split(' ')[1];
     }
-
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Access token is required' });
+    }
     const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      return res.status(500).json({
-        success: false,
-        message: 'Server configuration error'
-      });
+    const decoded = jwt.verify(token, jwtSecret);
+    const user = await User.findById(decoded.userId).select('-password');
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid token - user not found' });
     }
-    try {
-      const decoded = jwt.verify(token, jwtSecret);
-      const user = await User.findById(decoded.userId).select('-password');
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid token - user not found'
-        });
-      }
-      req.user = user;
-      next();
-    } catch (jwtError) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid or expired token'
-      });
-    }
+    req.user = user;
+    next();
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Authentication error'
-    });
+    res.status(401).json({ success: false, message: 'Invalid or expired token' });
   }
 };
 
 const optionalAuth = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = req.cookies.accessToken;
 
     if (!token) {
       req.user = null;
@@ -86,7 +64,7 @@ const generateToken = (user) => {
     payload,
     jwtSecret,
     { 
-      expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+      expiresIn: process.env.JWT_EXPIRES_IN || '1h',
       issuer: 'food-ordering-app',
       audience: 'food-ordering-users'
     }
@@ -111,7 +89,7 @@ const generateRefreshToken = (user) => {
     payload,
     jwtRefreshSecret,
     { 
-      expiresIn: '7d',
+      expiresIn: '1h',
       issuer: 'food-ordering-app',
       audience: 'food-ordering-users'
     }

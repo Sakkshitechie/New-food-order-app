@@ -26,23 +26,23 @@ export class CartService {
     return this.cartItemsValue.reduce((total, item) => total + item.quantity, 0);
   }
   getCart(userId: string | number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${userId}`, { headers: this.authService.getAuthHeaders() });
+    return this.http.get(`${this.apiUrl}/${userId}`, { withCredentials: true });
   }
   addToCart(userId: string | number, item: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${userId}/add`, item, { headers: this.authService.getAuthHeaders() });
+    return this.http.post(`${this.apiUrl}/${userId}/add`, item, { withCredentials: true });
   }
   removeFromCart(userId: string | number, itemId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${userId}/item/${itemId}`, { headers: this.authService.getAuthHeaders() });
+    return this.http.delete(`${this.apiUrl}/${userId}/item/${itemId}`, { withCredentials: true });
   }
   updateQuantity(userId: string | number, itemId: number, quantity: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${userId}/item/${itemId}`, { quantity }, { headers: this.authService.getAuthHeaders() });
+    return this.http.patch(`${this.apiUrl}/${userId}/item/${itemId}`, { quantity },{ withCredentials: true });
   }
   clearCart(userId: string | number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${userId}`, { headers: this.authService.getAuthHeaders() });
+    return this.http.delete(`${this.apiUrl}/${userId}`, { withCredentials: true });
   }
   async loadAndUpdateCart(userId: string | number) {
     try {
-      const cartData = await this.getCart(userId).toPromise();
+      const cartData = this.getCart(userId);
       const items = Array.isArray(cartData) ? cartData : [];
       this.updateCartItems(items);
       return items;

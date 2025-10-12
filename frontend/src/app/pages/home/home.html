@@ -4,21 +4,19 @@
       <h2 class="fw-bold mb-1">Popular Dishes</h2>
       <p class="text-muted mb-0">Fresh, hot, and handpicked for you</p>
     </div>
-
-    <div class="row mb-4 w-100">
-      <div class="col-12 d-flex justify-content-between align-items-center">
-        <div class="input-group" style="max-width: 400px;">
-          <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input type="text"
-                 class="form-control"
-                 placeholder="Search food items..."
-                 [(ngModel)]="searchTerm">
-        </div>
-        <button class="btn btn-primary" routerLink="/order">Go to Cart</button>
-      </div>
+    <div class="input-group" style="max-width: 400px;">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search food items..."
+        [(ngModel)]="searchTerm"
+      />
     </div>
   </div>
-  <app-menu-cards
-    [items]="foodItems | filter: searchTerm"
-  ></app-menu-cards>
+  <div *ngIf="(foodItems | filter: searchTerm).length === 0" class="text-center">
+    <img src="http://localhost:3000/uploads/not_found.jpg" alt="No items found" class="img-fluid" style="max-width: 300px;">
+    <p class="text-muted mt-3">No items found with this search!</p>
+  </div>
+  <app-menu-cards [searchTerm]="searchTerm"></app-menu-cards>
 </section>

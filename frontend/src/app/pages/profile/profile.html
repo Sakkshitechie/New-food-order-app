@@ -8,10 +8,6 @@
         </div>
         <h3>Your Profile</h3>
 
-        <div *ngIf="statusMessage" [ngClass]="{'alert': true,'alert-success': statusType === 'success','alert-danger': statusType === 'error','my-2': true}">
-          {{statusMessage}}
-        </div>
-
         <div class="profile-info">
           <div *ngIf="edit">
             <div class="edit-form">
@@ -84,20 +80,41 @@
 
         <div *ngIf="showOrders" class="orders-section">
           <h3>Your Orders</h3>
+          <div *ngIf="statusMessage" [ngClass]="{'alert': true,'alert-success': statusType === 'success','alert-danger': statusType === 'error','my-2': true}">
+            {{statusMessage}}
+          </div>
           <div *ngIf="orders.length === 0" class="alert alert-info">
             No orders found.
           </div>
           <div *ngFor="let order of orders" class="order-card">
-            <h4>Order #{{ order.id }}</h4>
+            <div class="order-header">
+              <h4 [ngClass]="{ 'cancelled-order': order.status === 'Cancelled' }">Order #{{ order.id }}</h4>
+              <button 
+                *ngIf="order.status === 'Cancelled'" 
+                class="btn btn-sm close-btn" 
+                (click)="deleteOrder(order.id)">
+                ✖
+              </button>
+              <button 
+                *ngIf="order.status !== 'Cancelled'" 
+                class="btn btn-danger btn-md cancel-btn" 
+                (click)="cancelOrder(order.id)">
+                Cancel Order
+              </button>
+            </div>
             <p><strong>Date:</strong> {{ order.orderDate | date:'medium' }}</p>
-            <p><strong>Status:</strong> <span class="badge bg-success">{{ order.status }}</span></p>
-            <p><strong>Total:</strong> ${{ getFormattedPrice(order.total) }}</p>
+            <p><strong>Status:</strong> 
+              <span [ngClass]="{ 'bg-success': order.status === 'Paid', 'bg-secondary': order.status === 'Cancelled' }">
+                {{ order.status }}
+              </span>
+            </p>
+            <p><strong>Total:</strong> ₹{{ getFormattedPrice(order.total) }}</p>
             <p><strong>Address:</strong> {{ order.address }}</p>
             <h6>Items:</h6>
             <ul class="list-group list-group-flush">
               <li *ngFor="let item of order.items" class="list-group-item d-flex justify-content-between align-items-center">
                 {{ item.name }} (x{{ item.quantity }})
-                <span class="badge bg-primary rounded-pill">${{ getFormattedItemTotal(item.price, item.quantity) }}</span>
+                <span class="badge bg-primary rounded-pill">₹{{ getFormattedItemTotal(item.price, item.quantity) }}</span>
               </li>
             </ul>
           </div>

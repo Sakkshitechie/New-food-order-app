@@ -4,6 +4,7 @@ const { body, param, validationResult } = require('express-validator');
 const { generateToken, generateRefreshToken, authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -65,7 +66,6 @@ const validateEmailParam = [
   handleValidationErrors
 ];
 
-// Debug and utility routes remain unchanged
 router.get('/debug/users', async (req, res) => {
   try {
     const users = await User.find().select('email name');
@@ -147,45 +147,40 @@ router.post('/register', validateUserRegistration, async (req, res) => {
       message: 'User registered successfully'
     });
   } catch (error) {
-    if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern)[0];
-      if (field === 'email') {
-        return res.status(409).json({ 
-          message: 'This email address is already registered. Please use a different email or try logging in.',
-          success: false 
-        });
-      } else if (field === 'phone') {
-        return res.status(409).json({ 
-          message: 'This phone number is already registered. Please use a different phone number.',
-          success: false 
-        });
-      }
-    }
     res.status(400).json({ message: error.message, success: false });
   }
 });
 
-router.post('/login', validateUserLogin, async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
-    
     if (!existingUser) {
       return res.status(401).json({ 
         message: 'Invalid email or password', 
         success: false 
       });
     }
-
     try {
       const user = await User.findByCredentials(email, password);
       const accessToken = generateToken(user);
       const refreshToken = generateRefreshToken(user);
-      
+
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 1000 // 1h
+      });
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 1000 // 1h
+      });
+
       const response = {
         user: user.toJSON(),
-        accessToken,
-        refreshToken,
         success: true,
         message: 'Login successful'
       };
@@ -196,7 +191,6 @@ router.post('/login', validateUserLogin, async (req, res) => {
         success: false 
       });
     }
-    
   } catch (error) {
     res.status(500).json({ 
       message: 'An error occurred during login. Please try again.', 
@@ -213,13 +207,10 @@ router.post('/logout', (req, res) => {
   }
 });
 
-// Only allow profile update via /profile for logged-in user
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
     const userId = req.user._id;
     const { name, email, phone, password } = req.body;
-
-    // Check for duplicate email
     if (email) {
       const existingEmailUser = await User.findOne({ email, _id: { $ne: userId } });
       if (existingEmailUser) {
@@ -229,7 +220,6 @@ router.put('/profile', authenticateToken, async (req, res) => {
         });
       }
     }
-    // Check for duplicate phone
     if (phone) {
       const existingPhoneUser = await User.findOne({ phone, _id: { $ne: userId } });
       if (existingPhoneUser) {
@@ -257,8 +247,31 @@ router.put('/profile', authenticateToken, async (req, res) => {
 
     res.json({ success: true, user: updatedUser });
   } catch (error) {
-    console.error('Profile update error:', error);
     res.status(500).json({ success: false, message: error.message || 'Profile update failed' });
+  }
+});
+
+router.post('/refresh-token', async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Refresh token missing', success: false });
+  }
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid refresh token', success: false });
+    }
+    const newAccessToken = generateToken(user);
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 1000 // 1h
+    });
+    res.json({ success: true, message: 'Access token refreshed' });
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid or expired refresh token', success: false });
   }
 });
 

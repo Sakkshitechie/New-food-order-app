@@ -32,13 +32,13 @@ npm install
 mongod --dbpath="C:\data\db"
 
 **Terminal 2 - Start Backend:**
-cd backend-api
-npm run dev
+cd backend
+npm start
 # Backend will run on http://localhost:3000
 
 **Terminal 3 - Start Frontend:**
 cd frontend
-npm run start:dev
+npm start
 # Frontend will run on http://localhost:4200
 
 #### Option B: Using Startup Scripts
@@ -62,7 +62,7 @@ start-frontend.bat
 
 Backend uses these environment variables (in `.env` file):
 
-MONGODB_URI=mongodb://localhost:27017/food_order
+MONGODB_URI=mongodb://localhost:27017/foodorderingapp
 PORT=3000
 FRONTEND_URL=http://localhost:4200
 NODE_ENV=development
@@ -71,7 +71,7 @@ NODE_ENV=development
 
 The application will automatically:
 1. Connect to MongoDB on startup
-2. Create the `food_order` database
+2. Create the `foodorderingapp` database
 3. Create collections as needed (users, orders, items, cartitems)
 
 ## API Endpoints
@@ -79,7 +79,7 @@ The application will automatically:
 - Users: `http://localhost:3000/api/users`
 - Foods: `http://localhost:3000/api/foods`  
 - Orders: `http://localhost:3000/api/orders`
-- Cart: `http://localhost:3000/api/cart`
+- Cart: `http://localhost:3000/api/cartitems`
 
 ## Health Checks
 
@@ -103,7 +103,7 @@ mongod --dbpath="C:\data\db"
 netstat -an | findstr :3000
 
 # Install missing dependencies
-cd backend-api && npm install
+cd backend && npm install
 
 ### Frontend Issues:
 ng cache clean
@@ -113,8 +113,8 @@ cd frontend && npm ci
 ## Development Workflow
 
 1. Start MongoDB first
-2. Start backend in development mode (`npm run dev`)  
-3. Start frontend in development mode (`npm run start:dev`)
+2. Start backend in development mode (`npm start`)  
+3. Start frontend in development mode (`npm start`)
 4. Access the application at `http://localhost:4200`
 
 The backend will auto-restart on file changes (nodemon)

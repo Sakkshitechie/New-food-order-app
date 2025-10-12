@@ -25,7 +25,6 @@
   object-fit: cover;
 }
 
-/* Item Total Column Styling */
 .item-total {
   text-align: right;
   color: #28a745;
@@ -82,7 +81,6 @@
   background-color: #c82333;
 }
 
-/* Total and Proceed Section */
 .cart-total {
   display: flex;
   justify-content: space-between;
@@ -114,8 +112,6 @@
 .proceed-btn:hover {
   background-color: #0056b3;
 }
-
-/* Order Details Form */
 .order-details {
   margin-top: 30px;
 }

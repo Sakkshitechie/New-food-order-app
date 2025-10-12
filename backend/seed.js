@@ -13,7 +13,7 @@ const items = [
       "id": 1,
       "name": "Margherita Pizza",
       "description": "Classic pizza with tomato sauce, mozzarella cheese, and fresh basil.",
-      "price": 3.56,
+      "price": 249.99,
       "image": "margherita-pizza.jpg"
     }
   ];
@@ -36,12 +36,12 @@ const orders = [
         id: 1,
         name: 'Margherita Pizza',
         description: 'Classic pizza with tomato sauce, mozzarella cheese, and fresh basil.',
-        price: 8.99,
+        price: 249.99,
         image: 'margherita-pizza.jpg',
         quantity: 2
       }
     ],
-    total: 17.98,
+    total: 598.98,
     orderDate: '2025-09-24T10:30:00.000Z',
     status: 'Paid',
     address: 'New Delhi'

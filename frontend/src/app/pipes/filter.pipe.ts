@@ -1,11 +1,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { FoodItem } from '../Models/FoodItem';
 
 @Pipe({
   name: 'filter'
 })
 export class FilterPipe implements PipeTransform {
-  transform(items: FoodItem[], searchTerm: string): FoodItem[] {
+  transform(items: any[], searchTerm: string): any[] {
     if (!items || !searchTerm) {
       return items;
     }
