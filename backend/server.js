@@ -39,6 +39,10 @@ app.get('/health', (res) => {
         database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
     });
 });
+app.get('/test-cookies', (req, res) => {
+    res.cookie('testCookie', 'cookieValue', { httpOnly: true });
+    res.json({ cookies: req.cookies });
+});
 
 app.use('/api/users', userRoutes);
 app.use('/api/items', foodRoutes);

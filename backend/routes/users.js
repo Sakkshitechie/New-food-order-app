@@ -151,7 +151,7 @@ router.post('/register', validateUserRegistration, async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', validateUserLogin , async (req, res) => {
   try {
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email: email.toLowerCase().trim() });

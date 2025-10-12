@@ -68,6 +68,7 @@ export class Profile implements OnInit {
           this.originalUser = { ...response.user };
           this.authService.currentUserSubject.next(response.user);
         }
+        this.clearMessages(); // Use clearMessages to clear after 10 seconds
       },
       error: (error) => {
         this.isLoading = false;
@@ -80,6 +81,7 @@ export class Profile implements OnInit {
         if (this.originalUser) {
           this.user = { ...this.originalUser };
         }
+        this.clearMessages();
       }
     });
   }
@@ -159,8 +161,11 @@ export class Profile implements OnInit {
   }
 
   clearMessages(): void {
-    this.statusMessage = '';
-    this.statusType = '';
+    setTimeout(() => {
+        this.profileMessage = '';
+        this.statusMessage = '';
+        this.statusType = '';
+    }, 10000); // Clear messages after 10 seconds
   }
 
   isFormValid(): boolean {
