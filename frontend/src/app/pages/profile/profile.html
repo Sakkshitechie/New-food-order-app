@@ -7,7 +7,9 @@
           <p class="text-muted">Manage your profile and view your order history below.</p>
         </div>
         <h3>Your Profile</h3>
-
+        <div *ngIf="profileMessage" [ngClass]="{'alert': true,'alert-success': statusType === 'success','alert-danger': statusType === 'error','my-2': true}">
+            {{profileMessage}}
+          </div>
         <div class="profile-info">
           <div *ngIf="edit">
             <div class="edit-form">

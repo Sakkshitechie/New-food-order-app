@@ -104,8 +104,6 @@ router.put('/:id/cancel', authenticateToken, async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Order not found or cannot be cancelled' });
     }
-
-    // Update the order status to 'Cancelled'
     order.status = 'Cancelled';
     await order.save();
 

@@ -20,6 +20,7 @@ export class Profile implements OnInit {
   orders: Order[] = [];
   showOrders = false;
   statusMessage = '';
+  profileMessage = '';
   statusType: 'success' | 'error' | '' = '';
   isLoading = false;
 
@@ -58,7 +59,7 @@ export class Profile implements OnInit {
     ).subscribe({
       next: (response) => {
         this.edit = false;
-        this.statusMessage = 'Profile updated successfully';
+        this.profileMessage = 'Profile updated successfully';
         this.statusType = 'success';
         this.isLoading = false;
 
@@ -72,9 +73,9 @@ export class Profile implements OnInit {
         this.isLoading = false;
         this.statusType = 'error';
         if (error?.error?.message) {
-          this.statusMessage = error.error.message;
+          this.profileMessage = error.error.message;
         } else {
-          this.statusMessage = 'Failed to update profile. Please try again.';
+          this.profileMessage = 'Failed to update profile. Please try again.';
         }
         if (this.originalUser) {
           this.user = { ...this.originalUser };
@@ -149,7 +150,7 @@ export class Profile implements OnInit {
   }
 
   private setError(message: string): void {
-    this.statusMessage = message;
+    this.profileMessage = message;
     this.statusType = 'error';
   }
 
