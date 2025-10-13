@@ -8,7 +8,8 @@ import { AuthService } from './services/auth.service';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, Header, Footer, Navbar],
-  templateUrl: './app.html'
+  templateUrl: './app.html',
+  styleUrls: ['./app.css']
 })
 export class App {
   constructor(private authService: AuthService) {} 

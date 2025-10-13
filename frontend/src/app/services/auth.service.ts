@@ -70,7 +70,7 @@ export class AuthService {
   }
 
   fetchCurrentUser(): void {
-    this.http.get<{ user: User; success: boolean }>(`${this.apiUrl}/me`).subscribe({
+    this.http.get<{ user: User; success: boolean }>(`${this.apiUrl}/me`, { withCredentials: true }).subscribe({
       next: (response) => {
         if (response.success && response.user) {
           this.currentUserSubject.next(response.user);
