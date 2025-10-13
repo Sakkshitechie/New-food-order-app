@@ -68,4 +68,34 @@ export class AuthService {
   handleAuthError(): void {
   this.clearCurrentUser();
   }
+
+  fetchCurrentUser(): void {
+    this.http.get<{ user: User; success: boolean }>(`${this.apiUrl}/me`).subscribe({
+      next: (response) => {
+        if (response.success && response.user) {
+          this.currentUserSubject.next(response.user);
+        }
+      },
+      error: () => {
+        this.currentUserSubject.next(null);
+      }
+    });
+  }
+
+  refreshToken(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/refresh-token`, {}, { withCredentials: true });
+  }
+
+  startTokenRefreshInterval(): void {
+    setInterval(() => {
+      this.refreshToken().subscribe({
+        next: () => {
+          // Token refreshed successfully
+        },
+        error: () => {
+          this.clearCurrentUser();
+        }
+      });
+    }, 50 * 60 * 1000); // 50 minutes
+  }
 }

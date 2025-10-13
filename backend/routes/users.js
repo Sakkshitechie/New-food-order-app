@@ -55,7 +55,9 @@ const validateUserLogin = [
     .normalizeEmail(),
   body('password')
     .notEmpty()
-    .withMessage('Password is required'),
+    .withMessage('Password is required')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters long'),
   handleValidationErrors
 ];
 
@@ -65,6 +67,13 @@ const validateEmailParam = [
     .withMessage('Invalid email format'),
   handleValidationErrors
 ];
+
+const validateMongoId = [
+  param('id')
+  .isMongoId()
+  .withMessage('Invalid user ID format'),
+  handleValidationErrors
+]
 
 router.get('/debug/users', async (req, res) => {
   try {
@@ -106,7 +115,7 @@ router.get('/check/:email', validateEmailParam, async (req, res) => {
   }
 });
 
-router.get('/:id', param('id').isMongoId().withMessage('Invalid user ID format'), handleValidationErrors, async (req, res) => {
+router.get('/:id', validateMongoId, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -176,7 +185,7 @@ router.post('/login', validateUserLogin , async (req, res) => {
         httpOnly: true,
         secure: false,
         sameSite: 'strict',
-        maxAge: 60 * 60 * 1000 // 1h
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
       const response = {
@@ -201,6 +210,17 @@ router.post('/login', validateUserLogin , async (req, res) => {
 
 router.post('/logout', (req, res) => {
   try {
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict'
+    });
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict'
+    });
+
     res.json({ message: 'Logged out successfully', success: true });
   } catch (error) {
     res.status(500).json({ message: 'Logout failed', success: false });
