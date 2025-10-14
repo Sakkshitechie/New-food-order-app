@@ -55,7 +55,7 @@
   </div>
 </div>
 
-<div *ngIf="showAddressForm && !showPaymentSuccess" class="order-details">
+<div *ngIf="cartItems.length > 0 && showAddressForm && !showPaymentSuccess" class="order-details">
   <h3>Delivery Details</h3>
   <form class="order-form" (ngSubmit)="submitAddress()">
     <table #deliveryDetailsTable>
@@ -84,7 +84,12 @@
     </tr>
     </table>
   <div class="button-container">
-    <button type="submit" class="submit-btn" [disabled]="!userAddress || userAddress.trim().length === 0">
+    <button 
+      type="submit" 
+      class="submit-btn" 
+      [disabled]="!userAddress || userAddress.trim().length === 0"
+      matTooltip="You are required to enter the address for ordering some food items"
+      matTooltipDisabled="!!userAddress && userAddress.trim().length > 0">
       Continue to Payment
     </button>
     <div *ngIf="!userAddress || userAddress.trim().length === 0" class="address-warning">

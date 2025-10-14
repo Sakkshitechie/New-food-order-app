@@ -97,9 +97,6 @@ router.put('/:id/cancel', authenticateToken, async (req, res) => {
 
     // Find the order by `id` or `_id` and ensure it is in 'Paid' status
     let order = await Order.findOne({ id: orderId, status: 'Paid' });
-    if (!order) {
-      order = await Order.findOne({ _id: orderId, status: 'Paid' });
-    }
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found or cannot be cancelled' });
