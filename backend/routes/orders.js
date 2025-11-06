@@ -67,7 +67,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       );
     }
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: 'Order not found', status: 'error' });
     }
     res.json(order);
   } catch (error) {
@@ -82,15 +82,14 @@ router.delete('/:id', async (req, res) => {
       order = await Order.findOneAndDelete({ _id: req.params.id });
     }
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: 'Order not found', status: 'error'});
     }
-    res.json({ message: 'Order deleted successfully' });
+    res.json({ message: 'Order deleted successfully', status: 'success' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Cancel Order API
 router.put('/:id/cancel', authenticateToken, async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -99,12 +98,12 @@ router.put('/:id/cancel', authenticateToken, async (req, res) => {
     let order = await Order.findOne({ id: orderId, status: 'Paid' });
 
     if (!order) {
-      return res.status(404).json({ message: 'Order not found or cannot be cancelled' });
+      return res.status(404).json({ message: 'Order not found or cannot be cancelled' , status: 'error'});
     }
     order.status = 'Cancelled';
     await order.save();
 
-    res.status(200).json({ message: 'Order cancelled successfully', order });
+    res.status(200).json({ message: 'Order cancelled successfully', order, status: 'success' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

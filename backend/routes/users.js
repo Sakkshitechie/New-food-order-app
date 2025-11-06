@@ -119,7 +119,7 @@ router.get('/:id', validateMongoId, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found', status: 'error' });
     }
     res.json(user);
   } catch (error) {
@@ -135,7 +135,8 @@ router.post('/register', validateUserRegistration, async (req, res) => {
     if (existingEmailUser) {
       return res.status(409).json({
         success: false,
-        message: 'This email address is already registered. Please use a different email.'
+        message: 'This email address is already registered. Please use a different email.',
+        status: 'error'
       });
     }
     
@@ -143,7 +144,8 @@ router.post('/register', validateUserRegistration, async (req, res) => {
     if (existingPhoneUser) {
       return res.status(409).json({
         success: false,
-        message: 'This phone number is already registered. Please use a different phone number.'
+        message: 'This phone number is already registered. Please use a different phone number.',
+        status: 'error'
       });
     }
 
@@ -167,7 +169,8 @@ router.post('/login', validateUserLogin , async (req, res) => {
     if (!existingUser) {
       return res.status(401).json({ 
         message: 'Invalid email or password', 
-        success: false 
+        success: false,
+        status: 'error'
       });
     }
     try {
@@ -221,7 +224,7 @@ router.post('/logout', (req, res) => {
       sameSite: 'strict'
     });
 
-    res.json({ message: 'Logged out successfully', success: true });
+    res.json({ message: 'Logged out successfully', success: true, status:'success' });
   } catch (error) {
     res.status(500).json({ message: 'Logout failed', success: false });
   }
@@ -236,7 +239,8 @@ router.put('/profile', authenticateToken, async (req, res) => {
       if (existingEmailUser) {
         return res.status(409).json({
           success: false,
-          message: 'This email address is already registered. Please use a different email.'
+          message: 'This email address is already registered. Please use a different email.',
+          status: 'error'
         });
       }
     }
@@ -245,7 +249,8 @@ router.put('/profile', authenticateToken, async (req, res) => {
       if (existingPhoneUser) {
         return res.status(409).json({
           success: false,
-          message: 'This phone number is already registered. Please use a different phone number.'
+          message: 'This phone number is already registered. Please use a different phone number.',
+          status: 'error'
         });
       }
     }
@@ -262,12 +267,12 @@ router.put('/profile', authenticateToken, async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(404).json({ success: false, message: 'User not found', status:'error' });
     }
 
     res.json({ success: true, user: updatedUser });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message || 'Profile update failed' });
+    res.status(500).json({ success: false, message: error.message || 'Profile update failed', status:'error' });
   }
 });
 

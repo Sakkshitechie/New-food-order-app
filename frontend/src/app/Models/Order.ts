@@ -9,3 +9,8 @@ export interface Order {
   status: string;
   address: string;
 }
+
+export interface OrderResponse extends Order {
+  status: 'success' | 'error';
+  message: string;
+}

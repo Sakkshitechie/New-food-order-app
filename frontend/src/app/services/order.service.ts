@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Order } from '../Models/Order';
+import { Order, OrderResponse } from '../Models/Order';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -42,10 +42,11 @@ export class OrderService {
     return this.http.patch(`${this.apiUrl}/${id}`, { status }, { withCredentials: true });
   }
 
-  deleteOrder(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`, { withCredentials: true });
+  deleteOrder(id: number): Observable<OrderResponse> {
+    return this.http.delete<OrderResponse>(`${this.apiUrl}/${id}`, { withCredentials: true });
   }
-  cancelOrder(orderId: number): Observable<void> {
-  return this.http.put<void>(`${this.apiUrl}/${orderId}/cancel`, {}, { withCredentials: true });
+
+  cancelOrder(orderId: number): Observable<OrderResponse> {
+  return this.http.put<OrderResponse>(`${this.apiUrl}/${orderId}/cancel`, {}, { withCredentials: true });
   }
 }

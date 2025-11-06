@@ -8,3 +8,9 @@ export interface User {
   password?: string;
   confirmPassword?: string;
 }
+
+export interface UserMessage extends User {
+  user: User;
+  status: 'success' | 'error';
+  message: string;
+}

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { User } from '../Models/User';
+import { User, UserMessage } from '../Models/User';
 
 @Injectable({
   providedIn: 'root'
@@ -57,8 +57,8 @@ export class AuthService {
     return this.http.delete(`${this.apiUrl}/${id}`, { withCredentials: true });
   }
 
-  updateProfile(profileData: any): Observable<any> {
-    return this.http.put<{ user: User }>(`${this.apiUrl}/profile`, profileData, { withCredentials: true });
+  updateProfile(profileData: any): Observable<UserMessage> {
+    return this.http.put<UserMessage>(`${this.apiUrl}/profile`, profileData, { withCredentials: true });
   }
 
   clearCurrentUser(): void {

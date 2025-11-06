@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { User } from '../../Models/User';
-import { Order } from '../../Models/Order';
+import { User, UserMessage } from '../../Models/User';
+import { Order, OrderResponse } from '../../Models/Order';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
 
@@ -35,8 +35,6 @@ export class Profile implements OnInit {
       if (currentUser?.id) {
         this.user = { ...currentUser };
         this.originalUser = { ...currentUser };
-      } else {
-        this.router.navigate(['/login']);
       }
     });
   }
@@ -50,16 +48,14 @@ export class Profile implements OnInit {
     if (!this.user || !this.validateUserData()) return;
     this.isLoading = true;
 
-    this.authService.updateProfile(
-      {
-        name: this.user?.name,
-        email: this.user?.email,
-        phone: this.user?.phone
-      }
-    ).subscribe({
+    this.authService.updateProfile({
+      name: this.user?.name,
+      email: this.user?.email,
+      phone: this.user?.phone
+    }).subscribe({
       next: (response) => {
         this.edit = false;
-        this.profileMessage = 'Profile updated successfully';
+        this.profileMessage = response?.message || 'Profile updated successfully'; // Use backend message
         this.statusType = 'success';
         this.isLoading = false;
 
@@ -68,16 +64,12 @@ export class Profile implements OnInit {
           this.originalUser = { ...response.user };
           this.authService.currentUserSubject.next(response.user);
         }
-        this.clearMessages(); // Use clearMessages to clear after 10 seconds
+        this.clearMessages(); // Clear messages after 10 seconds
       },
       error: (error) => {
         this.isLoading = false;
         this.statusType = 'error';
-        if (error?.error?.message) {
-          this.profileMessage = error.error.message;
-        } else {
-          this.profileMessage = 'Failed to update profile. Please try again.';
-        }
+        this.profileMessage = error?.error?.message || 'Failed to update profile. Please try again.'; // Use backend error message
         if (this.originalUser) {
           this.user = { ...this.originalUser };
         }
@@ -106,9 +98,9 @@ export class Profile implements OnInit {
           this.orders = data || [];
           this.isLoading = false;
         },
-        error: () => {
-          this.statusMessage = 'Failed to load orders';
-          this.statusType = 'error';
+        error: (error: OrderResponse) => {
+          this.statusMessage = error.message || 'Failed to load orders. Please try again.';
+          this.statusType = error.status || 'error';
           this.isLoading = false;
           this.orders = [];
         }
@@ -165,7 +157,7 @@ export class Profile implements OnInit {
         this.profileMessage = '';
         this.statusMessage = '';
         this.statusType = '';
-    }, 10000); // Clear messages after 10 seconds
+    }, 10000);
   }
 
   isFormValid(): boolean {
@@ -189,19 +181,21 @@ export class Profile implements OnInit {
   this.isLoading = true;
 
   this.orderService.cancelOrder(orderId).subscribe({
-    next: () => {
+    next: (response: OrderResponse) => {
       this.orders = this.orders.map(order =>
         order.id === orderId && order.status === 'Paid'
           ? { ...order, status: 'Cancelled' }
           : order
       );
-      this.statusMessage = 'Order cancelled successfully';
-      this.statusType = 'success';
+
+      this.statusMessage = response?.message;
+      // console.log('Cancel Response:', response);
+      this.statusType = response.status;
       this.isLoading = false;
     },
-    error: () => {
-      this.statusMessage = 'Failed to cancel order. Please try again.';
-      this.statusType = 'error';
+    error: (error: OrderResponse) => {
+      this.statusMessage = error?.message;
+      this.statusType = error.status || 'error';
       this.isLoading = false;
     }
   });
@@ -211,15 +205,15 @@ deleteOrder(orderId: number): void {
   this.isLoading = true;
 
   this.orderService.deleteOrder(orderId).subscribe({
-    next: () => {
+    next: (response: OrderResponse) => {
       this.orders = this.orders.filter(order => order.id !== orderId);
-      this.statusMessage = 'Order removed successfully';
-      this.statusType = 'success';
+      this.statusMessage = response?.message || 'Order removed successfully';
+      this.statusType = response.status;
       this.isLoading = false;
     },
-    error: () => {
-      this.statusMessage = 'Failed to remove order. Please try again.';
-      this.statusType = 'error';
+    error: (error: OrderResponse) => {
+      this.statusMessage = error?.message || 'Failed to remove order. Please try again.';
+      this.statusType = error.status || 'error';
       this.isLoading = false;
     }
   });
