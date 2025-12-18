@@ -156,3 +156,6 @@ Thumbs.db
 # Build outputs
 build/
 dist/
+
+# Exclude cloudwatch-logs.json
+cloudwatch-logs.json
