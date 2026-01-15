@@ -1,13 +1,5 @@
 const { CloudWatchLogsClient, PutLogEventsCommand } = require('@aws-sdk/client-cloudwatch-logs');
 
-console.log({
-  AWS_REGION: process.env.AWS_REGION,
-  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-  logGroupName: process.env.CW_LOG_GROUP,
-  logStreamName: process.env.CW_LOG_STREAM,
-});
-
 const cloudwatchLogs = new CloudWatchLogsClient({
   region: process.env.AWS_REGION,
   credentials: {
@@ -39,7 +31,7 @@ async function logToCloudWatch(level, event, details) {
     const response = await cloudwatchLogs.send(command);
     sequenceToken = response.nextSequenceToken;
   } catch (error) {
-    console.error('Failed to log to CloudWatch:', error.message);
+    // Removed console.error or console.log statements if present
   }
 }
 

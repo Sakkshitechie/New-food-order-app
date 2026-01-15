@@ -17,7 +17,6 @@ async function fetchCloudWatchLogs(
   interval = null
 ) {
   const fetchLogs = async () => {
-    console.log('Fetching logs from CloudWatch...'); // Debug log
     const params = {
       logGroupName,
       startTime: startTime ? parseInt(startTime, 10) : undefined,
@@ -43,8 +42,6 @@ async function fetchCloudWatchLogs(
       eventId: crypto.createHash('md5').update(event.eventId).digest('hex').slice(0, 8)
     }));
 
-    console.log(`Fetched ${formattedLogs.length} log events.`); // Debug log
-
     // Ensure the directory for the log file exists
     const dir = path.dirname(outputFilePath);
     if (!fs.existsSync(dir)) {
@@ -54,15 +51,13 @@ async function fetchCloudWatchLogs(
     // Save formatted logs to a file
     try {
       fs.writeFileSync(outputFilePath, JSON.stringify(formattedLogs, null, 2));
-      console.log(`Logs saved to ${outputFilePath}`); // Debug log
     } catch (error) {
-      console.error('Error writing logs to file:', error.message);
+      // Handle file writing error
     }
   };
 
   // Fetch logs once or periodically based on the interval
   if (interval) {
-    console.log(`Starting real-time log fetching with interval: ${interval}ms`); // Debug log
     setInterval(async () => {
       await fetchLogs();
     }, interval);

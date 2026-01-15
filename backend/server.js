@@ -90,16 +90,13 @@ app.get('/api/logs', async (req, res) => {
 
 app.get('/api/fetch-logs', async (req, res) => {
   try {
-    console.log('Fetch logs endpoint triggered'); // Debug log
     const logGroupName = req.query.logGroupName || '/aws/lambda/Food-App-test';
     const startTime = req.query.startTime ? parseInt(req.query.startTime, 10) : Date.now() - 24 * 60 * 60 * 1000;
     const endTime = req.query.endTime ? parseInt(req.query.endTime, 10) : Date.now();
     const outputFilePath = path.join(__dirname, 'logs', 'cloudwatch-logs.json');
     const interval = req.query.interval ? parseInt(req.query.interval, 10) : null;
 
-    console.log(`Fetching logs for logGroupName: ${logGroupName}, startTime: ${startTime}, endTime: ${endTime}`); // Debug log
     await fetchCloudWatchLogs(logGroupName, startTime, endTime, outputFilePath, interval);
-    console.log('Logs fetching started or completed.'); // Debug log
 
     res.json({
       success: true,
@@ -109,7 +106,6 @@ app.get('/api/fetch-logs', async (req, res) => {
       filePath: outputFilePath
     });
   } catch (error) {
-    console.error('Error fetching logs:', error.message); // Debug log
     res.status(500).json({
       success: false,
       message: error.message
